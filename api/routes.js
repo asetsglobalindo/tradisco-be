@@ -31,4 +31,7 @@ module.exports = function (app) {
 
     let Category = require('../api/routes/Category');
     app.use('/category', Category);
+
+    let Location = require('../api/routes/Location');
+    app.use('/location', Location);
 }

@@ -27,15 +27,13 @@ const Controller = {
 			}
 		}
 		if (query) {
-			if (query) {
-				filter.$or = [
-					{
-						title: {
-							$regex: new RegExp(regexWithSymbol(query), "i")
-						}
-					},
-				]
-			}
+			filter.$or = [
+				{
+					title: {
+						$regex: new RegExp(regexWithSymbol(query), "i")
+					}
+				},
+			]
 		}
 		if (category_id) filter.category_id = category_id;
 		if (active_status) filter.active_status = active_status;
@@ -317,15 +315,13 @@ const Controller = {
 		}
 		if (is_home) filter.show_on_homepage = is_home
 		if (query) {
-			if (query) {
-				filter.$or = [
-					{
-						title: {
-							$regex: new RegExp(regexWithSymbol(query), "i")
-						}
-					},
-				]
-			}
+			filter.$or = [
+				{
+					title: {
+						$regex: new RegExp(regexWithSymbol(query), "i")
+					}
+				},
+			]
 		}
 		const content = await models.Content.find({
 			...filter,
