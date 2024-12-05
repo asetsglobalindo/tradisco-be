@@ -12,13 +12,14 @@ const Email = require("./email");
 const Category = require("./category");
 const Home = require("./home");
 const Location = require("./location");
+const City = require("./city");
 
 
 const models = {
     Role, Organization, User, RolePage, PendingMail,
     Feedback, Header, Access,
     Content, Email, Image, Category,
-    Home, Location,
+    Home, Location, City
 };
 
 module.exports = models;

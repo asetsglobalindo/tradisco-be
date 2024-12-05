@@ -1,7 +1,8 @@
 const axios = require('axios');
-const {removeSymbol, objectEmpty} = require("./stringmod");
+const { removeSymbol, objectEmpty } = require("./stringmod");
+const models = require('../models');
 
-const addressSicepat = async(type) => {
+const addressSicepat = async (type) => {
     const config = {
         method: `GET`,
         url: `${process.env.URL_SICEPAT}/customer/${type}`,
@@ -18,14 +19,14 @@ const addressSicepat = async(type) => {
     }
 }
 
-const checkPriceSicepat = async(origin, destination, weight) => {
+const checkPriceSicepat = async (origin, destination, weight) => {
     const config = {
         method: `GET`,
         url: `${process.env.URL_SICEPAT}/customer/tariff`,
         headers: {
             'api-key': process.env.API_KEY_SICEPAT
         },
-        params: {origin, destination, weight}
+        params: { origin, destination, weight }
     }
     try {
         const tariff = await axios(config);
@@ -35,14 +36,14 @@ const checkPriceSicepat = async(origin, destination, weight) => {
     }
 }
 
-const checkResiSicepat = async(waybill) => {
+const checkResiSicepat = async (waybill) => {
     const config = {
         method: `GET`,
         url: `${process.env.URL_SICEPAT}/customer/waybill`,
         headers: {
             'api-key': process.env.API_KEY_SICEPAT
         },
-        params: {waybill}
+        params: { waybill }
     }
     try {
         const tariff = await axios(config);
@@ -52,7 +53,7 @@ const checkResiSicepat = async(waybill) => {
     }
 }
 
-const pickupRequestSicepat = async(data) => {
+const pickupRequestSicepat = async (data) => {
     let body = JSON.stringify({
         auth_key: process.env.KEY_SICEPAT,
         ...data
@@ -106,8 +107,8 @@ const responsePrice = async (prices, courier, currency, currency_convert) => {
     if (prices.length > 0) {
         for (let i = 0; i < prices.length; i++) {
             const price = prices[i];
-            
-            let convert_price = parseFloat(parseInt(price.tariff)/parseInt(currency_convert)).toFixed(2);
+
+            let convert_price = parseFloat(parseInt(price.tariff) / parseInt(currency_convert)).toFixed(2);
             let obj = {}
             if (courier_name == `sicepat`) {
                 const whitelist = allow_service_types.find(item => item.trim().toLowerCase() == price.service.trim().toLowerCase());
@@ -136,23 +137,23 @@ const responsePrice = async (prices, courier, currency, currency_convert) => {
 const removeFormatAddress = async (name, type, courier, namespace = true) => {
     if (!name) return null
     name = name.toLowerCase();
-    name = name.replace(/kota/g,'')
-    name = name.replace(/administrasi/g,'')
-    name = name.replace(/kepulauan/g,'')
-    name = name.replace(/daerah/g,'')
-    name = name.replace(/khusus/g,'')
-    name = name.replace(/capital/g,'')
-    name = name.replace(/kabupaten/g,'')
-    name = name.replace(/kab./g,'')
-    name = name.replace(/adm./g,'')
-    name = name.replace(/kep./g,'')
+    name = name.replace(/kota/g, '')
+    name = name.replace(/administrasi/g, '')
+    name = name.replace(/kepulauan/g, '')
+    name = name.replace(/daerah/g, '')
+    name = name.replace(/khusus/g, '')
+    name = name.replace(/capital/g, '')
+    name = name.replace(/kabupaten/g, '')
+    name = name.replace(/kab./g, '')
+    name = name.replace(/adm./g, '')
+    name = name.replace(/kep./g, '')
     name = namespace ? name.replace(/ /g, "") : name
 
     name = await convertWierdAddress(courier, name, type)
     return await removeSymbol(name.trim());
 }
 
-const convertWierdAddress= async (courier, text, type) => {
+const convertWierdAddress = async (courier, text, type) => {
     let name = text;
     if (courier == `sicepat`) {
         if (type == `city`) {
@@ -165,12 +166,12 @@ const convertWierdAddress= async (courier, text, type) => {
     if (type == `province`) {
         if (name == `nad`) name = name.replace(/nad/g, 'aceh')
     }
-    
+
     //change name city
     if (type == `city`) {
         if (name.indexOf(',') > 0) name = name.substring(0, name.indexOf(','))
     }
-    
+
     //change name province
     if (name.includes(`sumatera`)) name = name.replace(/sumatera/g, 'sumatra')
     if (name.includes(`istimewa`)) name = name.replace(/istimewa/g, 'di')
@@ -180,11 +181,11 @@ const convertWierdAddress= async (courier, text, type) => {
 }
 
 const checkAddressCode = async (address, type, courier) => {
-    const province =await removeFormatAddress(address?.province) || null;
+    const province = await removeFormatAddress(address?.province) || null;
     const city = await removeFormatAddress(address?.city, `city`);
     const district = await removeFormatAddress(address?.district);
-    const urban =  await removeFormatAddress(address?.urban) || null;
-    
+    const urban = await removeFormatAddress(address?.urban) || null;
+
     let check_address;
 
     if (courier == `sicepat`) {
@@ -200,9 +201,9 @@ const checkAddressCode = async (address, type, courier) => {
                 const found_province = province.includes(name) || name.includes(province)
 
                 if (
-                    found_district || 
-                    found_city || 
-                    found_province 
+                    found_district ||
+                    found_city ||
+                    found_province
                 ) {
                     check_address = item
                 }
@@ -211,11 +212,11 @@ const checkAddressCode = async (address, type, courier) => {
                 courier_province = await removeFormatAddress(item.province, `province`);
                 courier_city = await removeFormatAddress(item.city, `city`, courier);
                 courier_subdistrict = await removeFormatAddress(item.subdistrict);
-                
+
                 const found_district = district.includes(courier_subdistrict) || courier_subdistrict.includes(district)
                 const found_city = city.includes(courier_city) || courier_city.includes(city)
                 const found_province = province?.includes(courier_province) || courier_province.includes(province)
-         
+
                 if (found_district && found_city && found_province) check_address = item
             }
         }
@@ -230,7 +231,7 @@ const createBodyPickupRequest = async (courier, origin, destination, data, order
     const parcel_category = data?.item_category || `Fragile`,
         parcel_uom = `pcs`,
         parcel_content = data?.item_name || `Produk Baru`,
-        recipient_title =`Mr./ Mrs.`;
+        recipient_title = `Mr./ Mrs.`;
 
 
     let service_type = data.service_type;
@@ -317,7 +318,7 @@ const changeStatusEnum = status => {
 const changeStatusCourier = async (courier_id, status) => {
     let new_status = {};
     const courier_status = await models.Courier.findOne({
-        _id: courier_id, 
+        _id: courier_id,
         deleted_time: {
             $exists: false
         }
@@ -357,11 +358,11 @@ const responseStatusResi = async (histories, courier, courier_id) => {
 module.exports = {
     addressSicepat,
     checkPriceSicepat,
-    checkResiSicepat, 
+    checkResiSicepat,
     pickupRequestSicepat,
-    responsePR, 
+    responsePR,
     checkAddressCode, responsePrice,
-    createBodyPickupRequest, 
+    createBodyPickupRequest,
     responseStatusResi,
     changeStatusCourier
 };

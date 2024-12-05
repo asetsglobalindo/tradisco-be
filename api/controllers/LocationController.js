@@ -1,4 +1,5 @@
 const response = require("../helper/response");
+const { populateCity } = require("../helper/locationHelper");
 const { i18n } = require("../locales");
 const models = require("../models");
 const moment = require("moment");
@@ -26,7 +27,8 @@ const Controller = {
 			skip: (+page - 1) * +limit,
 			limit: +limit,
 		}
-		const locations = await models.Location.find(filter, null, sort);
+		let locations = await models.Location.find(filter, null, sort);
+		locations = await populateCity(locations);
 		const total_data = await models.Location.countDocuments(filter);
 		const pages = {
 			current_page: +page,
@@ -44,7 +46,8 @@ const Controller = {
 			}
 		}
 
-		const location = await models.Location.findOne(filter);
+		let location = await models.Location.findOne(filter);
+		location = await populateCity(location);
 		return response.ok(location, res, i18n(`Success`, {}, req.headers['accept-language'], 'general'));
 	},
 	add: async function (req, res) {
