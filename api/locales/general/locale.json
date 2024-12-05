@@ -1,0 +1,14 @@
+{
+    "Success": {
+        "id": "Berhasil",
+        "en": "Success"
+    },
+    "Exists {{name}}": {
+        "id": "{{name}} sudah ada",
+        "en": "{{name}} already exists"
+    },
+    "NotFound {{name}}": {
+        "id": "{{name}} tidak ditemukan",
+        "en": "{{name}} not found"
+    }
+}
