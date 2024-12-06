@@ -5,7 +5,7 @@ const router = express.Router(),
 
 router.get('/health', Controller.health);
 router.get('/home', middleware.authAdmin, Controller.get);
-router.get('/content', middleware.authAdmin, Controller.content);
+router.get('/content', Controller.content);
 router.post('/home', middleware.authAdmin, Controller.add);
 
 module.exports = router;
