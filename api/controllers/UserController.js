@@ -555,7 +555,7 @@ const User = {
 					organizations,
 					active_status: true
 				}
-				if (member_id) new_data.member_id = member_id;
+				// if (member_id) new_data.member_id = member_id;
 
 				const user = await models.User(new_data).save(options);
 				const full_name = userFirstLastName(user);
