@@ -2,6 +2,7 @@ const response = require("../helper/response");
 const { content } = require("../mail/email");
 const models = require("../models");
 const moment = require("moment");
+const { i18n } = require("../locales");
 
 const Controller = {
 	get: async function (req, res) {

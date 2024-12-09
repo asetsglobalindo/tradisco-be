@@ -7,6 +7,7 @@ const response = require("../helper/response");
 const models = require("../models");
 const moment = require("moment");
 const bcrypt = require('bcrypt');
+const { i18n } = require("../locales");
 
 const Org = {
 	get: async function (req, res) {
