@@ -7,7 +7,7 @@ const { regexWithSymbol } = require("../helper/stringmod");
 
 const Controller = {
 	get: async function (req, res) {
-		const { page = 1, limit = 20, sort_at = 'name', sort_by = 1, query } = req.query;
+		const { page = 1, limit = 20, sort_at = 'name', sort_by = 1, query, lat, long } = req.query;
 		let filter = {
 			deleted_time: {
 				$exists: false
@@ -21,6 +21,8 @@ const Controller = {
 				{ address: { $regex: new RegExp(regexWithSymbol(query), "i") } },
 			]
 		}
+		if (lat) filter.lat = lat;
+		if (long) filter.long = long;
 
 		const sort = {
 			sort: { [sort_at]: +sort_by },
