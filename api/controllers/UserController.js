@@ -9,6 +9,7 @@ const jwt = require('jsonwebtoken');
 const moment = require('moment')
 const response = require("../helper/response");
 const models = require("../models");
+const { i18n } = require("../locales");
 
 const User = {
 	get: async function (req, res) {
