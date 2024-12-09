@@ -230,8 +230,8 @@ const User = {
 		const hashed_password = await bcrypt.hash(password, 10);
 
 		//find member id
-		const member_info = await memberInfo(0, organization_id);
-		let member_id = member_info.length > 0 ? member_info[0]._id : null;
+		// const member_info = await memberInfo(0, organization_id);
+		// let member_id = member_info.length > 0 ? member_info[0]._id : null;
 
 		const session = await models.User.startSession();
 		session.startTransaction();
@@ -256,7 +256,7 @@ const User = {
 				password: hashed_password,
 				active_status: false
 			}
-			if (member_id) new_data.member_id = member_id;
+			// if (member_id) new_data.member_id = member_id;
 
 			if (dob) new_data.dob = moment(dob).tz('Asia/Jakarta').startOf('day').format();
 			if (organization_id) {
@@ -531,8 +531,8 @@ const User = {
 		}
 		else {
 			//find member id
-			const member_info = await memberInfo(0, organization_id);
-			let member_id = member_info.length > 0 ? member_info[0]._id : null;
+			// const member_info = await memberInfo(0, organization_id);
+			// let member_id = member_info.length > 0 ? member_info[0]._id : null;
 
 			//register
 			const session = await models.User.startSession();
