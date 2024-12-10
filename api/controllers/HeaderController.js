@@ -63,7 +63,7 @@ const Controller = {
 			}
 		}
 		const headers = await models.Header.find(filter_existing_data, `name`);
-		const existing_data = headers.filter(item => item.name[default_lang(req.headers)].toUpperCase() == name[default_lang(req.headers)].toUpperCase());
+		const existing_data = headers.filter(item => item.name[default_lang(req.headers)]?.toUpperCase() == name[default_lang(req.headers)]?.toUpperCase());
 		if (existing_data.length > 0) if (existing_data.length > 0) return response.error(400, i18n(`Exists {{name}}`, { name: CONTROLLER }, default_lang(req.headers), 'general'), res, i18n(`Exists {{name}}`, { name: CONTROLLER }, default_lang(req.headers), 'general'));
 
 

@@ -11,7 +11,7 @@ const i18n = (message, attributes, language, path) => {
 }
 
 const default_lang = (headers) => {
-    return headers['accept-language'] ?? DEFAULT_LANGUANGE
+    return headers['accept-language']?.toLowerCase() ?? DEFAULT_LANGUANGE
 }
 module.exports = {
     i18n, default_lang
