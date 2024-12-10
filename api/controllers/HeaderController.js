@@ -25,7 +25,6 @@ const Controller = {
 			skip: (+page - 1) * +limit,
 			limit: +limit,
 		}
-		console.log(sort)
 		const headers = await models.Header.find(filter, null, sort).populate(populate);
 		const total_data = await models.Header.countDocuments(filter);
 		const pages = {
@@ -65,7 +64,6 @@ const Controller = {
 		}
 		const headers = await models.Header.find(filter_existing_data, `name`);
 		const existing_data = headers.filter(item => item.name[default_lang(req.headers)].toUpperCase() == name[default_lang(req.headers)].toUpperCase());
-		console.log(existing_data)
 		if (existing_data.length > 0) if (existing_data.length > 0) return response.error(400, i18n(`Exists {{name}}`, { name: CONTROLLER }, default_lang(req.headers), 'general'), res, i18n(`Exists {{name}}`, { name: CONTROLLER }, default_lang(req.headers), 'general'));
 
 
