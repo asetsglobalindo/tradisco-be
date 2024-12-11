@@ -1,3 +1,4 @@
+const { convertData } = require("../helper/convert");
 const response = require("../helper/response");
 const { generateSlugV3, generateSlugV4, regexWithSymbol, filterObjectID } = require("../helper/stringmod");
 const { CONTENT_TYPE, NEWS_CATEGORY, CONTENT_DETAIL_TYPE } = require("../helper/types");
@@ -282,107 +283,31 @@ const Controller = {
 
 	},
 	content: async function (req, res) {
-		const { is_home, page = 1, limit = 20, query, category, category_id, image_enum, content_enum } = req.body;
+		const { slug } = req.params;
 
-		if (!image_enum && !content_enum) return response.error(400, "Request not found", res, "Request not found");
-
-		let image_type = models.Image.IMAGE_TYPE()[image_enum];
-		let content_type = models.Content.CONTENT_TYPE()[content_enum];
 		let filter = {
 			deleted_time: {
 				$exists: false
 			},
+			slug
 		}
-		const image_body = await models.Image.find({
-			...filter,
-			type: image_type
-		});
-
-
+		const language = default_lang(req.headers);
 		const populate = [
-			{ path: `category_id`, select: `name`, match: { deleted_time: { $exists: false } } },
-			{ path: `banner`, select: `images.url images_mobile.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
-			{ path: `images`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
-			{ path: `thumbnail_images`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
-			{ path: `thumbnail_images2`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
-			{ path: `body.images`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
+			{ path: `category_id`, select: `name` },
+			{ path: `banner.${language}`, select: `images.url images_mobile.url title description button_name button_route` },
+			{ path: `images.${language}`, select: `images.url title description button_name button_route` },
+			{ path: `thumbnail_images.${language}`, select: `images.url title description button_name button_route` },
+			{ path: `thumbnail_images2.${language}`, select: `images.url title description button_name button_route` },
+			{ path: `body.images.${language}`, select: `images.url title description button_name button_route` },
 		]
 
-		const sort = {
-			sort: { order: 1 },
-			skip: (+page - 1) * +limit,
-			limit: +limit,
-		}
-		if (is_home) filter.show_on_homepage = is_home
-		if (query) {
-			filter.$or = [
-				{
-					title: {
-						$regex: new RegExp(regexWithSymbol(query), "i")
-					}
-				},
-			]
-		}
-		const content = await models.Content.find({
+		let content = await models.Content.findOne({
 			...filter,
-			type: content_type,
 			active_status: true
-		}, null, sort).populate(populate)
-
-		let content_page = {
-			content: content.length > 0 ? content : [],
-		}
-
-		//change name banner to product for project
-		if (models.Content.CONTENT_TYPE()[content_enum] == CONTENT_TYPE.project) {
-			const populate_content = [
-				{ path: `category_id`, select: `name`, match: { deleted_time: { $exists: false } } },
-				{ path: `banner`, select: `images.url images_mobile.url`, match: { deleted_time: { $exists: false } } },
-				{ path: `body.images`, select: `images.url images_mobile.url`, match: { deleted_time: { $exists: false } } },
-				{ path: `thumbnail_images`, select: `images.url images_mobile.url`, match: { deleted_time: { $exists: false } } },
-				{ path: `images`, select: `images.url images_mobile.url`, match: { deleted_time: { $exists: false } } },
-			]
-			const commercials = await models.Content.find({
-				...filter,
-				type: {
-					$in: CONTENT_DETAIL_TYPE[content_enum]
-				},
-				active_status: true
-			}).populate(populate_content)
-
-			content_page.product = [
-				...commercials,
-			]
-		}
-
-		if (models.Content.CONTENT_TYPE()[content_enum] == CONTENT_TYPE.news || models.Content.CONTENT_TYPE()[content_enum] == CONTENT_TYPE.career) {
-			const populate_content = [
-				{ path: `category_id`, select: `name`, match: { deleted_time: { $exists: false } } },
-				{ path: `banner`, select: `images.url images_mobile.url`, match: { deleted_time: { $exists: false } } },
-				{ path: `body.images`, select: `images.url images_mobile.url`, match: { deleted_time: { $exists: false } } },
-				{ path: `thumbnail_images`, select: `images.url images_mobile.url`, match: { deleted_time: { $exists: false } } },
-				{ path: `images`, select: `images.url images_mobile.url`, match: { deleted_time: { $exists: false } } },
-			]
-			if (category) filter.category = NEWS_CATEGORY[category]
-			if (category_id) filter.category_id = category_id
-			if (models.Content.CONTENT_TYPE()[content_enum] == CONTENT_TYPE.news) {
-				filter.publish_date = {
-					$exists: true,
-					$lte: moment().tz('Asia/Jakarta').format()
-				}
-			}
-			const content_detail = await models.Content.find({
-				...filter,
-				type: {
-					$in: CONTENT_DETAIL_TYPE[content_enum]
-				},
-				active_status: true
-			}).populate(populate_content)
-
-			content_page.detail = content_detail
-		}
-
-		return response.ok(content_page, res, i18n(`Success`, {}, req.headers['accept-language'], 'general'));
+		}).populate(populate)
+		content = JSON.parse(JSON.stringify(content))
+		content = convertData(content, req.headers)
+		return response.ok(content, res, i18n(`Success`, {}, req.headers['accept-language'], 'general'));
 	},
 }
 
