@@ -146,8 +146,6 @@ const Controller = {
 				order, group_by, calendar_key, small_text2, show_on_homepage,
 				publish_date, category_id
 			}
-			console.log(new_data)
-			throw "Test Add"
 			await models.Content(new_data).save(options);
 
 			await session.commitTransaction();
