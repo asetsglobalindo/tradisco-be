@@ -20,7 +20,8 @@ const POPULATE = [
 
 const Controller = {
 	get: async function (req, res) {
-		const { page = 1, limit = 20, active_status, type, query, category_id, sort_by = 1, sort_at = 'order', publish_only } = req.query;
+		const { page = 1, limit = 20, active_status, type,
+			query, category_id, sort_by = 1, sort_at = 'order', publish_only } = req.query;
 		let filter = {
 			deleted_time: {
 				$exists: false
@@ -145,6 +146,8 @@ const Controller = {
 				order, group_by, calendar_key, small_text2, show_on_homepage,
 				publish_date, category_id
 			}
+			console.log(new_data)
+			throw "Test Add"
 			await models.Content(new_data).save(options);
 
 			await session.commitTransaction();
