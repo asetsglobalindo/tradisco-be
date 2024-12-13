@@ -3,9 +3,15 @@ const mongoose = require('mongoose');
 const defaultDate = moment.tz(Date.now(), "Asia/Jakarta");
 
 const IMAGE_TYPE = {
-	"home": 1,
-	"business": 2,
-	"news": 3,
+	home: 1,
+	business: 2,
+	news: 3,
+	career: 4,
+	about: 5,
+	investor: 6,
+	annual_report: 7,
+	sustainability_report: 8,
+	procuremenet_report: 9,
 }
 
 const imageSchema = new mongoose.Schema({

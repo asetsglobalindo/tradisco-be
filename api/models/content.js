@@ -6,7 +6,14 @@ const defaultDate = moment.tz(Date.now(), "Asia/Jakarta");
 const CONTENT_TYPE = {
 	business: 1,
 	news: 2,
+	career: 3,
+	about: 4,
+	investor: 5,
+	annual_report: 6,
+	sustainability_report: 7,
+	procuremenet_report: 8,
 }
+
 const BODY_TYPE = {
 	image_right: 1,
 	image_left: 2,

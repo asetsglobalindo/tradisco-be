@@ -1,7 +1,6 @@
 const { convertData } = require("../helper/convert");
 const response = require("../helper/response");
 const { generateSlugV3, generateSlugV4, regexWithSymbol, filterObjectID } = require("../helper/stringmod");
-const { CONTENT_TYPE, NEWS_CATEGORY, CONTENT_DETAIL_TYPE } = require("../helper/types");
 const { i18n, default_lang } = require("../locales");
 const models = require("../models");
 const moment = require("moment");
