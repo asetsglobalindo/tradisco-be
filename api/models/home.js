@@ -17,7 +17,11 @@ const homeSchema = new mongoose.Schema({
 						type: String,
 						ref: "Content"
 					}
-				]
+				],
+				image: {
+					type: String,
+					ref: "Image"
+				},
 			}
 		]
 	},

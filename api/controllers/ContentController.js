@@ -9,13 +9,25 @@ const CONTROLLER = {
 	en: "Content"
 }
 
+const POPUlATE_IMAGES = [
+	{ path: `images.id`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
+	{ path: `images.en`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
+	{ path: `thumbnail_images.id`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
+	{ path: `thumbnail_images.en`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
+]
 const POPULATE = [
 	{ path: `category_id`, select: `name`, match: { deleted_time: { $exists: false } } },
-	{ path: `banner`, select: `images.url images_mobile.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
-	{ path: `images`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
-	{ path: `thumbnail_images`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
+	{ path: `banner.id`, select: `images.url images_mobile.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
+	{ path: `banner.en`, select: `images.url images_mobile.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
+	{ path: `images.id`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
+	{ path: `images.en`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
+	{ path: `thumbnail_images.id`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
+	{ path: `thumbnail_images.en`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
 	{ path: `thumbnail_images2`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
-	{ path: `body.images`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
+	{ path: `body.images.id`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
+	{ path: `body.images.en`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
+	{ path: `related`, select: "slug title small_text thumbnail_images images type", match: { deleted_time: { $exists: false } }, populate: POPUlATE_IMAGES },
+	{ path: `related2`, select: "slug title small_text thumbnail_images images type", match: { deleted_time: { $exists: false } }, populate: POPUlATE_IMAGES },
 ]
 
 const Controller = {
@@ -87,21 +99,8 @@ const Controller = {
 		}
 		else filter.slug = content_id.trim();
 		if (req?.me?.organization_id || req.headers?.organizationid) filter.organization_id = req?.me?.organization_id ?? req.headers?.organizationid
-		const populate_image = [
-			{ path: `images`, select: `images.url images_mobile.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
-			{ path: `thumbnail_images`, select: `images.url images_mobile.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
-		]
-		const populate = [
-			{ path: `category_id`, select: `name`, match: { deleted_time: { $exists: false } } },
-			{ path: `banner`, select: `images.url images_mobile.url title description button_name button_route is_embedded_video`, match: { deleted_time: { $exists: false } } },
-			{ path: `images`, select: `images.url images_mobile.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
-			{ path: `thumbnail_images`, select: `images.url images_mobile.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
-			{ path: `thumbnail_images2`, select: `images.url images_mobile.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
-			{ path: `body.images`, select: `images.url images_mobile.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
-			{ path: `related`, select: "slug title small_text thumbnail_images images type", match: { deleted_time: { $exists: false } }, populate: populate_image },
-			{ path: `related2`, select: "slug title small_text thumbnail_images images type", match: { deleted_time: { $exists: false } }, populate: populate_image },
-		]
-		const content = await models.Content.findOne(filter).populate(populate);
+
+		const content = await models.Content.findOne(filter).populate(POPULATE);
 		return response.ok(content, res, i18n(`Success`, {}, req.headers['accept-language'], 'general'));
 	},
 	add: async function (req, res) {

@@ -17,6 +17,7 @@ const HOME_POPULATE = (language) => {
 	const POPUlATE = [
 		{ path: `banner.${language}`, select: ATTRIBUTE_IMAGE },
 		{ path: `section2.tab.content`, select: ATTRIBUTE_CONTENT, populate: POPUlATE_CONTENT },
+		{ path: `section2.tab.image`, select: ATTRIBUTE_IMAGE },
 		{ path: `section4.image`, select: ATTRIBUTE_IMAGE },
 		{ path: `section5.content`, select: ATTRIBUTE_CONTENT, populate: POPUlATE_CONTENT },
 	]
