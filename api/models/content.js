@@ -11,7 +11,7 @@ const CONTENT_TYPE = {
 	investor: 5,
 	annual_report: 6,
 	sustainability_report: 7,
-	procuremenet_report: 8,
+	procuremenet_information: 8,
 }
 
 const BODY_TYPE = {
