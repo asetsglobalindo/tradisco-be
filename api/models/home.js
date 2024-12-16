@@ -30,17 +30,12 @@ const homeSchema = new mongoose.Schema({
 	section4: [
 		{
 			tab: LanguageListType("string"),
-			lists: [
-				{
-					title: LanguageListType("string"),
-					description: LanguageListType("string"),
-					image: {
-						type: String,
-						ref: "Image"
-					},
-
-				}
-			]
+			title: LanguageListType("string"),
+			description: LanguageListType("string"),
+			image: {
+				type: String,
+				ref: "Image"
+			},
 		}
 	],
 
