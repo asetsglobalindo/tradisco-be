@@ -11,11 +11,11 @@ const IMAGE_TYPE = {
 	investor: 6,
 	annual_report: 7,
 	sustainability_report: 8,
-	procuremenet_information: 9,
+	procurement_information: 9,
 	investor_banner: 10,
 	annual_report_banner: 11,
 	sustainability_report_banner: 12,
-	procuremenet_information_banner: 13,
+	procurement_information_banner: 13,
 	business_banner: 14,
 }
 
