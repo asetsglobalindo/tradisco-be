@@ -6,7 +6,7 @@ const moment = require("moment");
 
 const Controller = {
 	get: async function (req, res) {
-		const { page = 1, limit = 20, type, active_status, image_ids } = req.query;
+		const { page = 1, limit = 20, type, active_status, image_ids, sort_by = "created_at", sort_at = -1 } = req.query;
 		let filter = {
 			deleted_time: {
 				$exists: false
@@ -21,16 +21,21 @@ const Controller = {
 		if (active_status) filter.active_status = active_status;
 		if (req?.me?.organization_id || req.headers?.organizationid) filter.organization_id = req?.me?.organization_id ?? req.headers?.organizationid
 		const sort = {
-			sort: { created_at: -1 },
-			skip: (parseInt(page) - 1) * parseInt(limit),
-			limit: parseInt(limit),
+			sort: { [sort_by]: sort_at },
+			skip: (+page - 1) * +limit,
+			limit: +limit,
 		}
-		const images = await models.Image.find(filter, null, sort);
+		let images = await models.Image.find(filter, null, sort);
+		images = JSON.parse(JSON.stringify(images));
 		const total_data = await models.Image.countDocuments(filter);
 		const pages = {
-			current_page: parseInt(page),
+			current_page: +page,
 			total_data,
 		};
+
+		//sort by image ids that fe sent
+		if (image_ids) images.sort((a, b) => filter._id?.$in.indexOf(a?._id) - filter._id?.$in.indexOf(b?._id));
+
 		return response.ok(images, res, `Success`, pages);
 	},
 	getDetail: async function (req, res) {
