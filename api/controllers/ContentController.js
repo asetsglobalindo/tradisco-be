@@ -33,7 +33,7 @@ const POPULATE = [
 const Controller = {
 	get: async function (req, res) {
 		const { page = 1, limit = 20, active_status, type,
-			query, category_id, sort_by = 1, sort_at = 'order', publish_only } = req.query;
+			query, category_id, sort_by = 1, sort_at = 'order', publish_only, show_single_language } = req.query;
 		let filter = {
 			deleted_time: {
 				$exists: false
@@ -70,12 +70,18 @@ const Controller = {
 			limit: +limit,
 		}
 
-		const contents = await models.Content.find(filter, null, sort).populate(POPULATE);
+		let contents = await models.Content.find(filter, null, sort).populate(POPULATE);
 		const total_data = await models.Content.countDocuments(filter);
 		const pages = {
 			current_page: parseInt(page),
 			total_data,
 		};
+
+		if (show_single_language == "yes") {
+			contents = JSON.parse(JSON.stringify(contents))
+			for (let i = 0; i < contents.length; i++) contents[i] = convertData(contents[i], req.headers)
+		}
+
 		return response.ok(contents, res, `Success`, pages);
 	},
 	getDetail: async function (req, res) {
