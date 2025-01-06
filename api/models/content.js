@@ -13,6 +13,7 @@ const CONTENT_TYPE = {
 	sustainability_report: 7,
 	procurement_information: 8,
 	business_page: 9,
+	news_page: 10,
 }
 
 const BODY_TYPE = {
