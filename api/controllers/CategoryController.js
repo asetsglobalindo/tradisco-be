@@ -1,4 +1,5 @@
 const response = require("../helper/response");
+const { generateSlugV3, generateSlugV4 } = require("../helper/stringmod");
 const { i18n, default_lang } = require("../locales");
 const models = require("../models");
 const moment = require("moment");
@@ -46,13 +47,15 @@ const Controller = {
 		const current_date = moment().tz('Asia/Jakarta').format();
 		const { name, type } = req.body;
 
+		const slug = await generateSlugV3(name['id'], models.Category, `name`)
+
 		const filter_existing_data = {
 			deleted_time: {
 				$exists: false
 			}
 		}
-		const categories = await models.Category.find(filter_existing_data, `name`);
-		const existing_data = categories.filter(item => item.name[default_lang(req.headers)].toUpperCase() == name[default_lang(req.headers)].toUpperCase());
+		const categories = await models.Category.find(filter_existing_data, `name slug`);
+		const existing_data = categories.filter(item => item.name[default_lang(req.headers)].toUpperCase() == name[default_lang(req.headers)].toUpperCase() || item?.slug?.toUpperCase() == slug.toUpperCase());
 		if (existing_data.length > 0) return response.error(400, i18n(`Exists {{name}}`, { name: CONTROLLER[default_lang(req.headers)] }, default_lang(req.headers), 'general'), res, i18n(`Exists {{name}}`, { name: CONTROLLER[default_lang(req.headers)] }, default_lang(req.headers), 'general'));
 
 		const session = await models.Category.startSession();
@@ -64,7 +67,8 @@ const Controller = {
 			let new_data = {
 				created_at: current_date,
 				created_by: req.me._id,
-				name, type: models.Category.CATEGORY_TYPE()[type]
+				name, type: models.Category.CATEGORY_TYPE()[type],
+				slug
 			}
 			await models.Category(new_data).save(options);
 
@@ -90,6 +94,8 @@ const Controller = {
 
 			for (let i = 0; i < categories.length; i++) {
 				const category = categories[i];
+				const slug = await generateSlugV3(category.name['id'], models.Category, `name`)
+
 				const check_duplicate = new_data.find(item => item.name[[default_lang(req.headers)]].trim().toLowerCase() == category.name[[default_lang(req.headers)]].trim().toLowerCase());
 				if (check_duplicate) throw i18n(`Exists {{name}}`, { name: category.name }, default_lang(req.headers), 'general');
 
@@ -97,7 +103,8 @@ const Controller = {
 					created_at: current_date,
 					created_by: req.me._id,
 					name: category.name,
-					type: models.Category.CATEGORY_TYPE()[category.type]
+					type: models.Category.CATEGORY_TYPE()[category.type],
+					slug
 				});
 			}
 
@@ -116,6 +123,13 @@ const Controller = {
 		const current_date = moment().tz('Asia/Jakarta').format();
 		const { category_id, name, type } = req.body;
 
+		let additional_filter = {
+			_id: {
+				$nin: category_id
+			}
+		}
+		const slug = await generateSlugV4(name['id'], models.Content, `name`, additional_filter)
+
 		const categories = await models.Category.find({
 			_id: {
 				$nin: category_id
@@ -123,9 +137,9 @@ const Controller = {
 			deleted_time: {
 				$exists: false
 			}
-		}, `name`);
+		}, `name slug`);
 
-		const existing_data = categories.filter(item => item.name[default_lang(req.headers)].toUpperCase() == name[default_lang(req.headers)].toUpperCase());
+		const existing_data = categories.filter(item => item.name[default_lang(req.headers)].toUpperCase() == name[default_lang(req.headers)].toUpperCase() || item?.slug?.toUpperCase() == slug.toUpperCase());
 		if (existing_data.length > 0) return response.error(400, i18n(`Exists {{name}}`, { name: "Name" }, default_lang(req.headers), 'general'), res, i18n(`Exists {{name}}`, { name: "Name" }, default_lang(req.headers), 'general'));
 
 		const filter = {
@@ -145,6 +159,7 @@ const Controller = {
 			const options = { session };
 
 			category.name = name;
+			category.slug = slug;
 			category.type = models.Category.CATEGORY_TYPE()[type];
 			category.updated_at = current_date;
 			category.updated_by = req.me._id
