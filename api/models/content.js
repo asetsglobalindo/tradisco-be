@@ -14,6 +14,7 @@ const CONTENT_TYPE = {
 	procurement_information: 8,
 	business_page: 9,
 	news_page: 10,
+	career_page: 11,
 }
 
 const BODY_TYPE = {

@@ -33,7 +33,8 @@ const POPULATE = [
 const Controller = {
 	get: async function (req, res) {
 		const { page = 1, limit = 20, active_status, type,
-			query, category_id, sort_by = 1, sort_at = 'order', publish_only, show_single_language } = req.query;
+			query, category_id, sort_by = 1, sort_at = 'order',
+			publish_only, show_single_language, category_slug } = req.query;
 		let filter = {
 			deleted_time: {
 				$exists: false
@@ -48,7 +49,20 @@ const Controller = {
 				},
 			]
 		}
-		if (category_id) filter.category_id = category_id;
+		if (category_slug) {
+			const categories = await models.Category.find({ slug: { $in: [category_slug.split(",")] } }, `_id`);
+			if (categories.length > 0) {
+				filter.category_id = {
+					$in: categories.map(category => category._id)
+				}
+			}
+		}
+		if (category_id) {
+			filter.category_id = [
+				...filter.category_id.length > 0 ? filter.category_id : [],
+				...category_id.split(",")
+			];
+		}
 		if (active_status) filter.active_status = active_status;
 		if (type) filter.type = models.Content.CONTENT_TYPE()[type];
 		if (publish_only == "yes") {

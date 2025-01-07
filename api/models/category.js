@@ -9,6 +9,9 @@ const CATEGORY_TYPE = {
 }
 const categorySchema = new mongoose.Schema({
 	name: LanguageListType("string"),
+	slug: {
+		type: String,
+	},
 	type: {
 		type: Number,
 		default: CATEGORY_TYPE.business
