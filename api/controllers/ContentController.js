@@ -43,7 +43,7 @@ const Controller = {
 		if (query) {
 			filter.$or = [
 				{
-					title: {
+					[`title.${default_lang(req.headers)}`]: {
 						$regex: new RegExp(regexWithSymbol(query), "i")
 					}
 				},
@@ -69,6 +69,7 @@ const Controller = {
 			filter = {
 				...filter,
 				$or: [
+					...filter.$or.length > 0 ? filter.$or : [],
 					{ publish_date: { $lte: moment().tz('Asia/Jakarta').format() } },
 					{ publish_date: { $exists: false } },
 					{ publish_date: null }
@@ -76,6 +77,7 @@ const Controller = {
 
 			}
 		}
+
 		if (req?.me?.organization_id || req.headers?.organizationid) filter.organization_id = req?.me?.organization_id ?? req.headers?.organizationid
 
 		const sort = {
