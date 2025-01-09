@@ -16,7 +16,7 @@ const POPUlATE_IMAGES = [
 	{ path: `thumbnail_images.en`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
 ]
 const POPULATE = [
-	{ path: `category_id`, select: `name`, match: { deleted_time: { $exists: false } } },
+	{ path: `category_id`, select: `name slug`, match: { deleted_time: { $exists: false } } },
 	{ path: `banner.id`, select: `images.url images_mobile.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
 	{ path: `banner.en`, select: `images.url images_mobile.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
 	{ path: `images.id`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
