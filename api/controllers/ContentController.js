@@ -50,7 +50,7 @@ const Controller = {
 			]
 		}
 		if (category_slug) {
-			const categories = await models.Category.find({ slug: { $in: [category_slug.split(",")] } }, `_id`);
+			const categories = await models.Category.find({ slug: { $in: category_slug.split(",") } }, `_id`);
 			if (categories.length > 0) {
 				filter.category_id = {
 					$in: categories.map(category => category._id)
