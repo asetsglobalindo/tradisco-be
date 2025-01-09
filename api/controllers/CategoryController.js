@@ -128,7 +128,7 @@ const Controller = {
 				$nin: category_id
 			}
 		}
-		const slug = await generateSlugV4(name['id'], models.Content, `name`, additional_filter)
+		const slug = await generateSlugV4(name['id'], models.Category, `name`, additional_filter)
 
 		const categories = await models.Category.find({
 			_id: {
