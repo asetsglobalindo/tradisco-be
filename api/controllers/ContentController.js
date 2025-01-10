@@ -55,6 +55,8 @@ const Controller = {
 				filter.category_id = {
 					$in: categories.map(category => category._id)
 				}
+			} else {
+				filter.category_id = null
 			}
 		}
 		if (category_id) {
@@ -86,6 +88,7 @@ const Controller = {
 			limit: +limit,
 		}
 
+		console.log(JSON.stringify(filter))
 		let contents = await models.Content.find(filter, null, sort).populate(POPULATE);
 		const total_data = await models.Content.countDocuments(filter);
 		const pages = {

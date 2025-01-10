@@ -11,7 +11,7 @@ const ATTRIBUTE_IMAGE = `images.url images_mobile.url title description button_n
 const ATTRIBUTE_CONTENT = `meta_title meta_description small_text title description bottom_button_name bottom_button_route order category_id thumbnail_images created_at`
 const HOME_POPULATE = (language) => {
 	const POPUlATE_CONTENT = [
-		{ path: `category_id`, select: "name" },
+		{ path: `category_id`, select: "name slug" },
 		{ path: `thumbnail_images.${language}`, select: ATTRIBUTE_IMAGE },
 	]
 	const POPUlATE = [
