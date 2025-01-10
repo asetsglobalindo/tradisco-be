@@ -88,7 +88,6 @@ const Controller = {
 			limit: +limit,
 		}
 
-		console.log(JSON.stringify(filter))
 		let contents = await models.Content.find(filter, null, sort).populate(POPULATE);
 		const total_data = await models.Content.countDocuments(filter);
 		const pages = {
