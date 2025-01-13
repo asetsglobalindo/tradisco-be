@@ -8,7 +8,7 @@ const CONTROLLER = {
 	en: "Home"
 }
 const ATTRIBUTE_IMAGE = `images.url images_mobile.url title description button_name button_route`
-const ATTRIBUTE_CONTENT = `meta_title meta_description small_text title description bottom_button_name bottom_button_route order category_id thumbnail_images created_at`
+const ATTRIBUTE_CONTENT = `meta_title meta_description small_text title description bottom_button_name bottom_button_route order category_id thumbnail_images created_at slug`
 const HOME_POPULATE = (language) => {
 	const POPUlATE_CONTENT = [
 		{ path: `category_id`, select: "name slug" },
