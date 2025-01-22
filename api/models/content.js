@@ -7,7 +7,7 @@ const CONTENT_TYPE = {
 	business: 1,
 	news: 2,
 	career: 3,
-	about: 4,
+	about_profile: 4,
 	investor: 5,
 	annual_report: 6,
 	sustainability_report: 7,
@@ -15,6 +15,13 @@ const CONTENT_TYPE = {
 	business_page: 9,
 	news_page: 10,
 	career_page: 11,
+	about_management: 12,
+	about_hsse: 13,
+	about_preemployment: 14,
+	about_value: 15,
+	about_reward: 16,
+	mitra: 17,
+	mitra_page: 18,
 }
 
 const BODY_TYPE = {
