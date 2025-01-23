@@ -128,7 +128,7 @@ const User = {
 				deleted_time: {
 					$exists: false
 				}
-			}, `_id`)
+			}, `_id default_role`)
 
 			let new_data = {
 				name,
@@ -164,7 +164,7 @@ const User = {
 			let type_email = 14;
 
 			//create admin in organization
-			if (user_level == `admin`) {
+			if (user_level == `admin` || role?.default_role) {
 				const organization = await models.Organization.findOne({
 					_id: organization_id,
 					deleted_time: {
