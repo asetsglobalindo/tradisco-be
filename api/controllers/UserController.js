@@ -81,7 +81,8 @@ const User = {
 	add: async function (req, res) {
 		const current_date = moment().tz('Asia/Jakarta').format();
 		const { name, password, email, dob, phone_number,
-			addresses = [], user_level = 'admin', active_status, description, gender,
+			addresses = [], active_status,
+			description, gender, role_id, user_level = 'super_admin'
 		} = req.body;
 		const organization_id = req?.me?.organization_id;
 		// const host = req.headers?.host || null;
@@ -112,23 +113,23 @@ const User = {
 			}
 		}
 
-		//find member 
-		let default_name = 'admin';
-
+		//find role id
+		let filter_role = {
+			deleted_time: {
+				$exists: false
+			}
+		}
+		if (role_id) filter_role._id = role_id;
+		else {
+			filter_role.default_name = user_level;
+		}
+		const role = await models.Role.findOne(filter_role, `_id default_role`)
+		if (!role) return response.error(400, `Role not found`, res, `Role not found`);
 		const session = await models.User.startSession();
 		session.startTransaction();
 
 		try {
 			const options = { session }
-
-			//find role id
-			const role = await models.Role.findOne({
-				default_name,
-				default_role: false,
-				deleted_time: {
-					$exists: false
-				}
-			}, `_id default_role`)
 
 			let new_data = {
 				name,
@@ -164,7 +165,7 @@ const User = {
 			let type_email = 14;
 
 			//create admin in organization
-			if (user_level == `admin` || role?.default_role) {
+			if (user_level == `super_admin` || role?.default_role) {
 				const organization = await models.Organization.findOne({
 					_id: organization_id,
 					deleted_time: {
