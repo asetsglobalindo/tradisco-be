@@ -131,12 +131,7 @@ const contentSchema = new mongoose.Schema({
 	// for each type page
 	thumbnail_images: [LanguageListType("image")],
 	//for homepage
-	thumbnail_images2: [
-		{
-			type: String,
-			ref: "Image"
-		}
-	],
+	thumbnail_images2: [LanguageListType("image")],
 	related: [
 		{
 			type: String,
