@@ -442,7 +442,7 @@ const User = {
 	},
 	delete: async function (req, res) {
 		const { user_id } = req.body;
-		const current_date = moment().tz('Asia/Jakarta').format();
+		if (user_id.includes(req.me._id?.toString())) return response.error(400, `You cannot delete yourself`, res, `You cannot delete yourself`);
 
 		const session = await models.User.startSession();
 		session.startTransaction();
