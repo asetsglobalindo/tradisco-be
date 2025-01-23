@@ -52,6 +52,9 @@ const contentSchema = new mongoose.Schema({
 	//for homepage
 	small_text2: LanguageListType("string"),
 	title: LanguageListType("string"),
+	sub_title1: LanguageListType("string"),
+	sub_title2: LanguageListType("string"),
+	sub_title3: LanguageListType("string"),
 	description: LanguageListType("string"),
 	banner: [
 		LanguageListType("image")
@@ -124,6 +127,7 @@ const contentSchema = new mongoose.Schema({
 		default: 0
 	},
 	images: [LanguageListType("image")],
+	images2: [LanguageListType("image")],
 	// for each type page
 	thumbnail_images: [LanguageListType("image")],
 	//for homepage

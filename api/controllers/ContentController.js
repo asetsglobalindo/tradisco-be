@@ -21,6 +21,8 @@ const POPULATE = [
 	{ path: `banner.en`, select: `images.url images_mobile.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
 	{ path: `images.id`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
 	{ path: `images.en`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
+	{ path: `images2.id`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
+	{ path: `images2.en`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
 	{ path: `thumbnail_images.id`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
 	{ path: `thumbnail_images.en`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
 	{ path: `thumbnail_images2`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
@@ -135,7 +137,8 @@ const Controller = {
 			bottom_button_name, bottom_button_route, active_status,
 			related = [], related2 = [], body = [], body2 = [],
 			images = [], thumbnail_images = [], banner = [], use_list, thumbnail_images2 = [],
-			order, group_by, calendar_key, small_text2, show_on_homepage, category, publish_date, category_id
+			order, group_by, calendar_key, small_text2, show_on_homepage, category, publish_date, category_id,
+			sub_title1, sub_title2, sub_title3, images2 = []
 		} = req.body;
 
 		const slug = await generateSlugV3(title['id'], models.Content, `title`)
@@ -167,7 +170,7 @@ const Controller = {
 				related, related2, body, body2,
 				images, thumbnail_images, thumbnail_images2, banner, use_list,
 				order, group_by, calendar_key, small_text2, show_on_homepage,
-				publish_date, category_id
+				publish_date, category_id, sub_title1, sub_title2, sub_title3, images2
 			}
 			await models.Content(new_data).save(options);
 
@@ -186,7 +189,8 @@ const Controller = {
 			type, description, bottom_text, bottom_button_name, bottom_button_route,
 			active_status, related = [], related2 = [], body = [], body2 = [],
 			images, thumbnail_images, banner, use_list, thumbnail_images2,
-			order, group_by, calendar_key, small_text2, show_on_homepage, category, publish_date, category_id
+			order, group_by, calendar_key, small_text2, show_on_homepage, category, publish_date, category_id,
+			sub_title1, sub_title2, sub_title3, images2 = []
 		} = req.body;
 
 		let additional_filter = {
@@ -246,14 +250,18 @@ const Controller = {
 			if (body) content.body = body;
 			if (body2) content.body2 = body2;
 			if (use_list) content.use_list = use_list;
-			if (images) content.images = images;
-			if (thumbnail_images) content.thumbnail_images = thumbnail_images;
-			if (thumbnail_images2) content.thumbnail_images2 = thumbnail_images2;
-			if (banner) content.banner = banner;
+			if (images.length > 0) content.images = images;
+			if (thumbnail_images.length > 0) content.thumbnail_images = thumbnail_images;
+			if (thumbnail_images2.length > 0) content.thumbnail_images2 = thumbnail_images2;
+			if (banner.length > 0) content.banner = banner;
 			if (order) content.order = order;
 			if (group_by) content.group_by = group_by;
 			if (calendar_key) content.calendar_key = calendar_key;
 			if (small_text2) content.small_text2 = small_text2;
+			if (sub_title1) content.sub_title1 = sub_title1;
+			if (sub_title2) content.sub_title2 = sub_title2;
+			if (sub_title3) content.sub_title3 = sub_title3;
+			if (images2.length > 0) content.images2 = images2;
 			if (publish_date) content.publish_date = publish_date;
 			content.updated_at = current_date;
 			content.updated_by = req.me._id
