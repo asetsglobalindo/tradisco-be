@@ -19,6 +19,7 @@ const HOME_POPULATE = (language) => {
 		{ path: `section2.tab.content`, select: ATTRIBUTE_CONTENT, populate: POPUlATE_CONTENT },
 		{ path: `section2.tab.image`, select: ATTRIBUTE_IMAGE },
 		{ path: `section4.image`, select: ATTRIBUTE_IMAGE },
+		{ path: `section4a.content`, select: ATTRIBUTE_CONTENT, populate: POPUlATE_CONTENT },
 		{ path: `section5.content`, select: ATTRIBUTE_CONTENT, populate: POPUlATE_CONTENT },
 	]
 	return POPUlATE;
@@ -29,7 +30,7 @@ const Home = {
 		res.status(200).json(`Healthy`);
 	},
 	add: async function (req, res) {
-		const { meta_title, meta_description, banner, section2, section3, section4, section5 } = req.body
+		const { meta_title, meta_description, banner, section2, section3, section4, section4a, section5 } = req.body
 
 		const home = await models.Home.findOne({});
 		if (home) {
@@ -39,6 +40,7 @@ const Home = {
 			if (section2) home.section2 = section2;
 			if (section3) home.section3 = section3;
 			if (section4) home.section4 = section4;
+			if (section4a) home.section4a = section4a;
 			if (section5) home.section5 = section5;
 			home.updated_by = req.me._id;
 			home.updated_at = moment().tz('Asia/Jakarta').format()

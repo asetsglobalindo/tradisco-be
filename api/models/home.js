@@ -43,6 +43,17 @@ const homeSchema = new mongoose.Schema({
 		}
 	],
 
+	section4a: {
+		title: LanguageListType("string"),
+		description: LanguageListType("string"),
+		content: [
+			{
+				type: String,
+				ref: "Content"
+			}
+		]
+	},
+
 	section5: {
 		title: LanguageListType("string"),
 		button_name: LanguageListType("string"),

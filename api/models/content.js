@@ -22,6 +22,8 @@ const CONTENT_TYPE = {
 	about_reward: 16,
 	mitra: 17,
 	mitra_page: 18,
+	sub_company: 19,
+	csr: 20,
 }
 
 const BODY_TYPE = {
