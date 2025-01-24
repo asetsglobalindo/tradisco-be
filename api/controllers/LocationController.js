@@ -80,7 +80,7 @@ const Controller = {
 	},
 	update: async function (req, res) {
 		const current_date = moment().tz('Asia/Jakarta').format();
-		const { name, location_id, slug, code, address, lat, long, publish } = req.body;
+		const { name, location_id, slug, code, address, lat, long, publish, facility, fuel } = req.body;
 
 		const filter = {
 			_id: location_id,
@@ -103,6 +103,8 @@ const Controller = {
 			location.name = name;
 			location.slug = slug;
 			location.code = code
+			location.facility = facility
+			location.fuel = fuel
 			location.address = address
 			location.lat = lat
 			location.long = long

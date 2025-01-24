@@ -21,6 +21,12 @@ const locationSchema = new mongoose.Schema({
 	long: {
 		type: String
 	},
+	facility: {
+		type: String
+	},
+	fuel: {
+		type: String
+	},
 	publish: {
 		type: Number,
 		default: 0

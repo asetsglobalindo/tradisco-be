@@ -16,6 +16,10 @@ const IMAGE_TYPE = {
 	annual_report_banner: 11,
 	sustainability_report_banner: 12,
 	procurement_information_banner: 13,
+	mitra: 14,
+	mitra_page: 15,
+	sub_company: 16,
+	csr_page: 17,
 }
 
 const imageSchema = new mongoose.Schema({
