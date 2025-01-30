@@ -189,7 +189,7 @@ const Controller = {
 		let { content_id, meta_title, meta_description, small_text, title,
 			type, description, bottom_text, bottom_button_name, bottom_button_route,
 			active_status, related = [], related2 = [], body = [], body2 = [],
-			images, thumbnail_images = [], banner, use_list, thumbnail_images2 = [],
+			images = [], thumbnail_images = [], banner = [], use_list, thumbnail_images2 = [],
 			order, group_by, calendar_key, small_text2, show_on_homepage, category, publish_date, category_id,
 			sub_title1, sub_title2, sub_title3, images2 = []
 		} = req.body;
@@ -272,6 +272,7 @@ const Controller = {
 			session.endSession();
 			return response.ok(true, res, i18n(`Success`, {}, req.headers['accept-language'], 'general'));
 		} catch (err) {
+			console.log(err)
 			await session.abortTransaction();
 			session.endSession();
 			return response.error(400, err.message, res, err);
