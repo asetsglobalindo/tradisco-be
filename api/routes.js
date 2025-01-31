@@ -34,4 +34,7 @@ module.exports = function (app) {
 
     let Location = require('../api/routes/Location');
     app.use('/location', Location);
+
+    let Form = require('../api/routes/Form');
+    app.use('/form', Form);
 }

@@ -1,0 +1,10 @@
+{
+   "TypeRequired": {
+        "id": "Please input form type",
+        "en": "Please input form type"
+    },
+    "LocationRequired": {
+        "id": "Please choose location",
+        "en": "Please choose location"
+    }
+}
