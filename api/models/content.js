@@ -24,6 +24,9 @@ const CONTENT_TYPE = {
 	mitra_page: 18,
 	sub_company: 19,
 	csr: 20,
+	csr_list: 21,
+	csr_content: 22,
+	bazma: 23,
 }
 
 const BODY_TYPE = {

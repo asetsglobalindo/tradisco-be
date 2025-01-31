@@ -20,6 +20,7 @@ const IMAGE_TYPE = {
 	mitra_page: 15,
 	sub_company: 16,
 	csr_page: 17,
+	bazma: 18,
 }
 
 const imageSchema = new mongoose.Schema({
