@@ -38,6 +38,23 @@ const headerSchema = new mongoose.Schema({
 					ref: "Image"
 				}
 			],
+			childs: [
+				{
+					name: LanguageListType("string"),
+					route: {
+						type: String
+					},
+					order: {
+						type: Number
+					},
+					images: [
+						{
+							type: String,
+							ref: "Image"
+						}
+					],
+				}
+			]
 		}
 	],
 	contents: [

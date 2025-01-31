@@ -47,6 +47,7 @@ const Controller = {
 		const populate = [
 			{ path: `images`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
 			{ path: `childs.images`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
+			{ path: `childs.childs.images`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
 			{ path: `contents`, select: `thumbnail_images.url title slug type`, match: { deleted_time: { $exists: false } } },
 		]
 		const header = await models.Header.findOne(filter).populate(populate);
