@@ -139,7 +139,7 @@ const Controller = {
 			related = [], related2 = [], body = [], body2 = [],
 			images = [], thumbnail_images = [], banner = [], use_list, thumbnail_images2 = [],
 			order, group_by, calendar_key, small_text2, show_on_homepage, category, publish_date, category_id,
-			sub_title1, sub_title2, sub_title3, images2 = []
+			sub_title1, sub_title2, sub_title3, images2 = [], bottom_text2, bottom_description2
 		} = req.body;
 
 		const slug = await generateSlugV3(title['id'], models.Content, `title`)
@@ -171,7 +171,8 @@ const Controller = {
 				related, related2, body, body2,
 				images, thumbnail_images, thumbnail_images2, banner, use_list,
 				order, group_by, calendar_key, small_text2, show_on_homepage,
-				publish_date, category_id, sub_title1, sub_title2, sub_title3, images2
+				publish_date, category_id, sub_title1, sub_title2, sub_title3, images2,
+				bottom_text2, bottom_description2
 			}
 			await models.Content(new_data).save(options);
 
@@ -191,7 +192,7 @@ const Controller = {
 			active_status, related = [], related2 = [], body = [], body2 = [],
 			images = [], thumbnail_images = [], banner = [], use_list, thumbnail_images2 = [],
 			order, group_by, calendar_key, small_text2, show_on_homepage, category, publish_date, category_id,
-			sub_title1, sub_title2, sub_title3, images2 = []
+			sub_title1, sub_title2, sub_title3, images2 = [], bottom_text2, bottom_description2
 		} = req.body;
 
 		let additional_filter = {
@@ -264,6 +265,8 @@ const Controller = {
 			if (sub_title3) content.sub_title3 = sub_title3;
 			if (images2.length > 0) content.images2 = images2;
 			if (publish_date) content.publish_date = publish_date;
+			if (bottom_text2) content.bottom_text2 = bottom_text2;
+			if (bottom_description2) content.bottom_description2 = bottom_description2;
 			content.updated_at = current_date;
 			content.updated_by = req.me._id
 			await content.save(options);

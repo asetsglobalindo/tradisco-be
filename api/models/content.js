@@ -27,6 +27,7 @@ const CONTENT_TYPE = {
 	csr_list: 21,
 	csr_content: 22,
 	bazma: 23,
+	company_report: 24,
 }
 
 const BODY_TYPE = {
@@ -119,6 +120,8 @@ const contentSchema = new mongoose.Schema({
 	bottom_button_route: {
 		type: String
 	},
+	bottom_text2: LanguageListType("string"),
+	bottom_description2: LanguageListType("string"),
 	active_status: {
 		type: Boolean,
 		default: false

@@ -21,6 +21,7 @@ const IMAGE_TYPE = {
 	sub_company: 16,
 	csr_page: 17,
 	bazma: 18,
+	company_report: 19,
 }
 
 const imageSchema = new mongoose.Schema({
