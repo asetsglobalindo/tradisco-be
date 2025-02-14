@@ -1,38 +1,37 @@
 const moment = require('moment-timezone');
 const mongoose = require('mongoose');
+const { LanguageListType } = require('../helper/types');
 const defaultDate = moment.tz(Date.now(), "Asia/Jakarta");
 
-const locationSchema = new mongoose.Schema({
-	name: {
+
+const footerSchema = new mongoose.Schema({
+	tagline: LanguageListType("string"),
+	url_instagram: {
 		type: String
 	},
-	slug: {
+	url_facebook: {
 		type: String
 	},
-	code: {
+	url_linkedin: {
+		type: String
+	},
+	url_mail: {
 		type: String
 	},
 	address: {
 		type: String
 	},
-	lat: {
+	mail: {
 		type: String
 	},
-	long: {
+	tel: {
 		type: String
 	},
-	facility: {
+	copyright_text: {
 		type: String
 	},
-	fuel: {
+	copyright_link: {
 		type: String
-	},
-	operational_hour: {
-		type: String
-	},
-	publish: {
-		type: Number,
-		default: 0
 	},
 
 	created_at: {
@@ -46,6 +45,6 @@ const locationSchema = new mongoose.Schema({
 	deleted_by: String
 });
 
-const Location = mongoose.model('Location', locationSchema, 'location');
+const Footer = mongoose.model('Footer', footerSchema, 'footer');
 
-module.exports = Location;
+module.exports = Footer;

@@ -198,8 +198,6 @@ const Controller = {
 		}
 		const populate = [
 			{ path: `images`, select: `images.url title description button_name button_route`, match: { deleted_time: { $exists: false } } },
-			// { path: `childs.images`, select: `images.url title description button_name button_route`, match: { deleted_time: {$exists: false}}},
-			// { path: `contents`, select: `thumbnail_images.url title slug type`, match: { deleted_time: {$exists: false}, active_status: true}, options: sort},
 		]
 		let headers = await models.Header.find(filter, null, sort).populate(populate);
 		headers = JSON.parse(JSON.stringify(headers))
@@ -211,22 +209,17 @@ const Controller = {
 			meta[header.name] = header
 		}
 
+		//get footer
+		const footer_attr = `tagline url_instagram url_facebook url_linkedin url_mail address mail tel copyright_text copyright_link`;
+		let footer = await models.Footer.findOne({}, footer_attr);
+		footer = JSON.parse(JSON.stringify(footer))
+		footer = convertData(footer, req.headers)
+
 		let content;
 		content = {
 			meta,
 			headers,
-			footer: {
-				tagline: i18n("FooterTagLine", {}, default_lang(req.headers), 'footer'),
-				url_instagram: "https://www.instagram.com/",
-				url_facebook: "https://www.facebook.com/",
-				url_linkedin: "https://www.linkedin.com/",
-				url_mail: "mailto:info@pertamina.id",
-				address: "Tower, Level 10. Jalan 28, Grogol – Petamburan, Jakarta Barat 11470",
-				mail: "info@pertamina.id",
-				tel: "021-0000-000",
-				copyright_text: moment().tz('Asia/Jakarta').format("YYYY") + " Pertamina | site by flitts",
-				copyright_link: "https://www.flitts.com"
-			}
+			footer
 		}
 		return response.ok(content, res, i18n(`Success`, {}, default_lang(req.headers), 'general'));
 	}

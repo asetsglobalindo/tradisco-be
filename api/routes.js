@@ -37,4 +37,7 @@ module.exports = function (app) {
 
     let Form = require('../api/routes/Form');
     app.use('/form', Form);
+
+    let Footer = require('../api/routes/Footer');
+    app.use('/footer', Footer);
 }
