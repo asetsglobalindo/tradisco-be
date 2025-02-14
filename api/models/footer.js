@@ -33,6 +33,18 @@ const footerSchema = new mongoose.Schema({
 	copyright_link: {
 		type: String
 	},
+	other_routes: [
+		{
+			title: LanguageListType("string"),
+			route: {
+				type: String
+			},
+			order: {
+				type: Number,
+				default: 0
+			}
+		}
+	],
 
 	created_at: {
 		type: Date,

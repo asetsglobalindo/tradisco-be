@@ -210,7 +210,7 @@ const Controller = {
 		}
 
 		//get footer
-		const footer_attr = `tagline url_instagram url_facebook url_linkedin url_mail address mail tel copyright_text copyright_link`;
+		const footer_attr = `tagline url_instagram url_facebook url_linkedin url_mail address mail tel copyright_text copyright_link other_routes`;
 		let footer = await models.Footer.findOne({}, footer_attr);
 		footer = JSON.parse(JSON.stringify(footer))
 		footer = convertData(footer, req.headers)

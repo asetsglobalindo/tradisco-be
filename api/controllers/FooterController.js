@@ -23,7 +23,8 @@ const Controller = {
             mail,
             tel,
             copyright_text,
-            copyright_link
+            copyright_link,
+            other_routes
         } = req.body;
 
         const footer = await models.Footer.findOne({});
@@ -44,6 +45,7 @@ const Controller = {
                 footer.tel = tel;
                 footer.copyright_text = copyright_text;
                 footer.copyright_link = copyright_link;
+                footer.other_routes = other_routes;
                 footer.updated_by = req.me._id;
                 footer.updated_at = moment().tz('Asia/Jakarta').format()
                 await footer.save(options);
@@ -60,7 +62,8 @@ const Controller = {
                     mail,
                     tel,
                     copyright_text,
-                    copyright_link
+                    copyright_link,
+                    other_routes
                 }
                 await models.Footer(new_data).save(options);
             }
