@@ -226,7 +226,7 @@ const Controller = {
       filter.organization_id =
         req?.me?.organization_id ?? req.headers?.organizationid;
 
-    const content = await models.Content.findOne(filter).populate(POPULATE);
+    let content = await models.Content.findOne(filter).populate(POPULATE);
 
     content = addBaseUrlToImage(content);
 
