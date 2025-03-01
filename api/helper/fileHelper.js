@@ -2,11 +2,13 @@ const fs = require("fs");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const { removeWordBreak, removeSymbol, is_object } = require("./stringmod");
+require("dotenv").config();
 
 // Direktori penyimpanan lokal
 const BASE_STORAGE_DIR = path.join(process.cwd(), "storage");
-// URL base tidak disimpan di database - akan ditambahkan saat runtime
-const PUBLIC_URL_BASE = "/static";
+// URL base dengan domain
+const BASE_URL = process.env.BASE_URL || "https://your-domain.com"; // Tambahkan base URL
+const PUBLIC_URL_BASE = `${BASE_URL}/static`; // Tambahkan BASE_URL di depan /static
 
 // Memastikan direktori penyimpanan ada
 const ensureDirectoryExists = (dirPath) => {
@@ -68,14 +70,14 @@ const upload_image = (files, folder, organization_id) => {
       try {
         fs.writeFileSync(fullPath, files.data);
 
-        // Simpan path relatif saja tanpa PUBLIC_URL_BASE
+        // Simpan path relatif dan tambahkan BASE_URL dan /static untuk URL lengkap
         result.push({
           type: files.mimetype,
           path: relativePath,
           name: `${file_name}.${extension}`,
           size: files.size,
-          // Tidak menyertakan "/static" - hanya menyimpan path relatif
-          url: `/${relativePath}/${file_name}.${extension}`,
+          // Tambahkan PUBLIC_URL_BASE di depan path relatif
+          url: `${PUBLIC_URL_BASE}/${relativePath}/${file_name}.${extension}`,
         });
 
         resolve(result);
@@ -108,14 +110,14 @@ const upload_image = (files, folder, organization_id) => {
         try {
           fs.writeFileSync(fullPath, file.data);
 
-          // Simpan path relatif saja tanpa PUBLIC_URL_BASE
+          // Simpan path relatif dan tambahkan BASE_URL dan /static untuk URL lengkap
           result.push({
             type: file.mimetype,
             path: relativePath,
             name: `${file_name}.${extension}`,
             size: file.size,
-            // Tidak menyertakan "/static" - hanya menyimpan path relatif
-            url: `/${relativePath}/${file_name}.${extension}`,
+            // Tambahkan PUBLIC_URL_BASE di depan path relatif
+            url: `${PUBLIC_URL_BASE}/${relativePath}/${file_name}.${extension}`,
           });
         } catch (error) {
           reject(error);
@@ -135,16 +137,20 @@ const upload_image = (files, folder, organization_id) => {
 const getFullImageUrl = (imageData) => {
   if (!imageData || !imageData.url) return null;
 
-  // Jika URL sudah memiliki "/static" atau domain lengkap, kembalikan apa adanya
-  if (
-    imageData.url.startsWith(PUBLIC_URL_BASE) ||
-    imageData.url.startsWith("http")
-  ) {
+  // Jika URL sudah memiliki domain lengkap, kembalikan apa adanya
+  if (imageData.url.startsWith("http")) {
     return imageData.url;
   }
 
-  // Tambahkan PUBLIC_URL_BASE
-  return `${PUBLIC_URL_BASE}${imageData.url}`;
+  // Jika URL sudah memiliki BASE_URL dan /static, kembalikan apa adanya
+  if (imageData.url.startsWith(PUBLIC_URL_BASE)) {
+    return imageData.url;
+  }
+
+  // Jika URL hanya memiliki path relatif, tambahkan PUBLIC_URL_BASE
+  return `${PUBLIC_URL_BASE}${imageData.url.startsWith("/") ? "" : "/"}${
+    imageData.url
+  }`;
 };
 
 const remove_image = async (file) => {
@@ -256,6 +262,7 @@ module.exports = {
   remove_file_directory,
   ensureDirectoryExists,
   BASE_STORAGE_DIR,
-  getFullImageUrl, // Ekspor helper baru untuk mendapatkan URL lengkap
-  PUBLIC_URL_BASE, // Ekspor basis URL untuk penggunaan di tempat lain
+  getFullImageUrl,
+  PUBLIC_URL_BASE,
+  BASE_URL, // Ekspor BASE_URL untuk penggunaan di tempat lain
 };
