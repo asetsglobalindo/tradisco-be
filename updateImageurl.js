@@ -2,7 +2,7 @@
 //   const newImage = { ...image };
 
 //   newImage.path = image.path.replace("pertamina/", "");
-//   newImage.url = `/static/${image.path.replace("pertamina/", "")}/${
+//   newImage.url = `/${image.path.replace("pertamina/", "")}/${
 //     image.name
 //   }`;
 
