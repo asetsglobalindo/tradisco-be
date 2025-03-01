@@ -84,9 +84,11 @@ const Home = {
   },
 
   content: async function (req, res) {
-    let home = await models.Home.findOne().populate(
-      HOME_POPULATE(default_lang(req.headers))
-    );
+    // Fix by sanitizing the language before using it
+    let language = default_lang(req.headers);
+    // Extract first language code only (e.g., "en" from "en-us,en;q=0.9")
+    language = language.split(",")[0].split("-")[0];
+    let home = await models.Home.findOne().populate(HOME_POPULATE(language));
     home = JSON.parse(JSON.stringify(home));
     home = convertData(home, req.headers);
     return response.ok(
