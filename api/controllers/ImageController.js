@@ -1,233 +1,329 @@
-const { upload_image, remove_all_image, create_image } = require("../helper/fileHelper");
+const {
+  upload_image,
+  remove_all_image,
+  create_image,
+} = require("../helper/fileHelper");
+const { addBaseUrlToImage } = require("../helper/imageUrlHelper");
 const response = require("../helper/response");
 const { i18n } = require("../locales");
 const models = require("../models");
 const moment = require("moment");
 
 const Controller = {
-	get: async function (req, res) {
-		const { page = 1, limit = 20, type, active_status, image_ids, sort_by = "created_at", sort_at = -1 } = req.query;
-		let filter = {
-			deleted_time: {
-				$exists: false
-			}
-		}
-		if (image_ids) {
-			filter._id = {
-				$in: image_ids.split(",")
-			}
-		}
-		if (type) filter.type = models.Image.IMAGE_TYPE()[type];
-		if (active_status) filter.active_status = active_status;
-		if (req?.me?.organization_id || req.headers?.organizationid) filter.organization_id = req?.me?.organization_id ?? req.headers?.organizationid
-		const sort = {
-			sort: { [sort_by]: sort_at },
-			skip: (+page - 1) * +limit,
-			limit: +limit,
-		}
-		let images = await models.Image.find(filter, null, sort);
-		images = JSON.parse(JSON.stringify(images));
-		const total_data = await models.Image.countDocuments(filter);
-		const pages = {
-			current_page: +page,
-			total_data,
-		};
+  get: async function (req, res) {
+    const {
+      page = 1,
+      limit = 20,
+      type,
+      active_status,
+      image_ids,
+      sort_by = "created_at",
+      sort_at = -1,
+    } = req.query;
+    let filter = {
+      deleted_time: {
+        $exists: false,
+      },
+    };
+    if (image_ids) {
+      filter._id = {
+        $in: image_ids.split(","),
+      };
+    }
+    if (type) filter.type = models.Image.IMAGE_TYPE()[type];
+    if (active_status) filter.active_status = active_status;
+    if (req?.me?.organization_id || req.headers?.organizationid)
+      filter.organization_id =
+        req?.me?.organization_id ?? req.headers?.organizationid;
+    const sort = {
+      sort: { [sort_by]: sort_at },
+      skip: (+page - 1) * +limit,
+      limit: +limit,
+    };
+    let images = await models.Image.find(filter, null, sort);
+    images = JSON.parse(JSON.stringify(images));
 
-		//sort by image ids that fe sent
-		if (image_ids) images.sort((a, b) => filter._id?.$in.indexOf(a?._id) - filter._id?.$in.indexOf(b?._id));
+    images = addBaseUrlToImage(images);
 
-		return response.ok(images, res, `Success`, pages);
-	},
-	getDetail: async function (req, res) {
-		const { image_id } = req.params;
+    const total_data = await models.Image.countDocuments(filter);
+    const pages = {
+      current_page: +page,
+      total_data,
+    };
 
-		let filter = {
-			_id: image_id,
-			deleted_time: {
-				$exists: false
-			}
-		}
+    //sort by image ids that fe sent
+    if (image_ids)
+      images.sort(
+        (a, b) =>
+          filter._id?.$in.indexOf(a?._id) - filter._id?.$in.indexOf(b?._id)
+      );
 
-		if (req?.me?.organization_id || req.headers?.organizationid) filter.organization_id = req?.me?.organization_id ?? req.headers?.organizationid
+    return response.ok(images, res, `Success`, pages);
+  },
+  getDetail: async function (req, res) {
+    const { image_id } = req.params;
 
-		const image = await models.Image.findOne(filter);
-		return response.ok(image, res, i18n(`Success`, {}, req.headers['accept-language'], 'general'));
-	},
-	add: async function (req, res) {
-		const current_date = moment().tz('Asia/Jakarta').format();
-		const { button_name, button_route, type, title, description, is_embedded_video, active_status } = req.body;
-		let images = [], images_mobile = [];
+    let filter = {
+      _id: image_id,
+      deleted_time: {
+        $exists: false,
+      },
+    };
 
-		const session = await models.Image.startSession();
-		session.startTransaction();
+    if (req?.me?.organization_id || req.headers?.organizationid)
+      filter.organization_id =
+        req?.me?.organization_id ?? req.headers?.organizationid;
 
-		try {
-			const options = { session };
+    let image = await models.Image.findOne(filter);
 
-			//add images
-			if (req.files) {
-				try {
-					const files = req.files?.files ?? [];
-					const files_mobile = req.files?.files_mobile ?? [];
-					images = await upload_image(files, `images`, req?.me?.organization_id || `organization`);
-					images_mobile = await upload_image(files_mobile, `images`, req?.me?.organization_id || `organization`);
-				} catch (error) {
-					throw error
-				}
-			}
+    image = addBaseUrlToImage(image);
 
-			if (images.length == 0 || images_mobile.length == 0) {
-				throw "Please upload image"
-			}
+    return response.ok(
+      image,
+      res,
+      i18n(`Success`, {}, req.headers["accept-language"], "general")
+    );
+  },
+  add: async function (req, res) {
+    const current_date = moment().tz("Asia/Jakarta").format();
+    const {
+      button_name,
+      button_route,
+      type,
+      title,
+      description,
+      is_embedded_video,
+      active_status,
+    } = req.body;
+    let images = [],
+      images_mobile = [];
 
-			let new_data = {
-				organization_id: req.me.organization_id,
-				created_at: current_date,
-				created_by: req.me._id,
-				button_name, button_route, images, images_mobile,
-				title, description, type: models.Image.IMAGE_TYPE()[type], is_embedded_video,
-				active_status
-			}
-			await models.Image(new_data).save(options);
+    const session = await models.Image.startSession();
+    session.startTransaction();
 
-			await session.commitTransaction();
-			session.endSession();
-			return response.ok(true, res, i18n(`Success`, {}, req.headers['accept-language'], 'general'));
-		} catch (err) {
-			await session.abortTransaction();
-			session.endSession();
-			return response.error(400, err.message, res, err);
-		}
-	},
-	update: async function (req, res) {
-		const current_date = moment().tz('Asia/Jakarta').format();
-		let { image_id, button_name, button_route, type, images, images_mobile, title, description, is_embedded_video, active_status } = req.body;
-		let new_images = [], old_images = [],
-			new_images_mobile = [], old_images_mobile = [];
+    try {
+      const options = { session };
 
-		if ((!images || !images_mobile) && !req.files) {
-			return response.error(400, "Please upload image", res, "Please upload image");
-		}
+      //add images
+      if (req.files) {
+        try {
+          const files = req.files?.files ?? [];
+          const files_mobile = req.files?.files_mobile ?? [];
+          images = await upload_image(
+            files,
+            `images`,
+            req?.me?.organization_id || `organization`
+          );
+          images_mobile = await upload_image(
+            files_mobile,
+            `images`,
+            req?.me?.organization_id || `organization`
+          );
+        } catch (error) {
+          throw error;
+        }
+      }
 
-		//change obj to array in images
-		images = images ? JSON.parse(images) : JSON.stringify([]);
-		images_mobile = images_mobile ? JSON.parse(images_mobile) : JSON.stringify([]);
-		await create_image(old_images, images);
-		await create_image(old_images_mobile, images_mobile);
+      if (images.length == 0 || images_mobile.length == 0) {
+        throw "Please upload image";
+      }
 
-		const filter = {
-			_id: image_id,
-			organization_id: req.me.organization_id,
-			deleted_time: {
-				$exists: false
-			}
-		}
+      let new_data = {
+        organization_id: req.me.organization_id,
+        created_at: current_date,
+        created_by: req.me._id,
+        button_name,
+        button_route,
+        images,
+        images_mobile,
+        title,
+        description,
+        type: models.Image.IMAGE_TYPE()[type],
+        is_embedded_video,
+        active_status,
+      };
+      await models.Image(new_data).save(options);
 
-		const image = await models.Image.findOne(filter)
-		if (!image) {
-			return response.error(400, `Image not found`, res, `Image not found`);
-		}
+      await session.commitTransaction();
+      session.endSession();
+      return response.ok(
+        true,
+        res,
+        i18n(`Success`, {}, req.headers["accept-language"], "general")
+      );
+    } catch (err) {
+      await session.abortTransaction();
+      session.endSession();
+      return response.error(400, err.message, res, err);
+    }
+  },
+  update: async function (req, res) {
+    const current_date = moment().tz("Asia/Jakarta").format();
+    let {
+      image_id,
+      button_name,
+      button_route,
+      type,
+      images,
+      images_mobile,
+      title,
+      description,
+      is_embedded_video,
+      active_status,
+    } = req.body;
+    let new_images = [],
+      old_images = [],
+      new_images_mobile = [],
+      old_images_mobile = [];
 
-		const session = await models.Image.startSession();
-		session.startTransaction();
+    if ((!images || !images_mobile) && !req.files) {
+      return response.error(
+        400,
+        "Please upload image",
+        res,
+        "Please upload image"
+      );
+    }
 
-		try {
-			const options = { session };
+    //change obj to array in images
+    images = images ? JSON.parse(images) : JSON.stringify([]);
+    images_mobile = images_mobile
+      ? JSON.parse(images_mobile)
+      : JSON.stringify([]);
+    await create_image(old_images, images);
+    await create_image(old_images_mobile, images_mobile);
 
-			//remove images 
-			await remove_all_image(image.images, old_images)
-			await remove_all_image(image.images_mobile, old_images_mobile)
+    const filter = {
+      _id: image_id,
+      organization_id: req.me.organization_id,
+      deleted_time: {
+        $exists: false,
+      },
+    };
 
-			//add new images
-			if (req.files) {
-				try {
-					const files = req.files?.files ?? [];
-					const files_mobile = req.files?.files_mobile ?? [];
-					new_images = await upload_image(files, `images`, req?.me?.organization_id || `organization`);
-					new_images_mobile = await upload_image(files_mobile, `images`, req?.me?.organization_id || `organization`);
-				} catch (error) {
-					throw error
-				}
-			}
+    const image = await models.Image.findOne(filter);
+    if (!image) {
+      return response.error(400, `Image not found`, res, `Image not found`);
+    }
 
-			if (old_images.length == 0 && new_images.length == 0) {
-				throw "Please upload image"
-			}
-			image.title = title
-			image.type = models.Image.IMAGE_TYPE()[type]
-			image.description = description
-			image.button_name = button_name
-			image.button_route = button_route
-			image.is_embedded_video = is_embedded_video
-			image.active_status = active_status
-			image.images = [...old_images, ...new_images];
-			image.images_mobile = [...old_images_mobile, ...new_images_mobile];
-			image.updated_at = current_date
-			image.updated_by = req.me._id
-			await image.save(options);
+    const session = await models.Image.startSession();
+    session.startTransaction();
 
-			await session.commitTransaction();
-			session.endSession();
-			return response.ok(true, res, i18n(`Success`, {}, req.headers['accept-language'], 'general'));
-		} catch (err) {
-			await session.abortTransaction();
-			session.endSession();
-			return response.error(400, err.message, res, err);
-		}
-	},
-	delete: async function (req, res) {
-		const { image_id } = req.body;
-		const current_date = moment().tz('Asia/Jakarta').format();
+    try {
+      const options = { session };
 
-		const images = await models.Image.find({
-			_id: { $in: image_id },
-			organization_id: req.me.organization_id,
-			deleted_time: {
-				$exists: false
-			}
-		})
+      //remove images
+      await remove_all_image(image.images, old_images);
+      await remove_all_image(image.images_mobile, old_images_mobile);
 
-		for (let i = 0; i < images.length; i++) {
-			const image = images[i];
+      //add new images
+      if (req.files) {
+        try {
+          const files = req.files?.files ?? [];
+          const files_mobile = req.files?.files_mobile ?? [];
+          new_images = await upload_image(
+            files,
+            `images`,
+            req?.me?.organization_id || `organization`
+          );
+          new_images_mobile = await upload_image(
+            files_mobile,
+            `images`,
+            req?.me?.organization_id || `organization`
+          );
+        } catch (error) {
+          throw error;
+        }
+      }
 
-			const session = await models.Image.startSession();
-			session.startTransaction();
+      if (old_images.length == 0 && new_images.length == 0) {
+        throw "Please upload image";
+      }
+      image.title = title;
+      image.type = models.Image.IMAGE_TYPE()[type];
+      image.description = description;
+      image.button_name = button_name;
+      image.button_route = button_route;
+      image.is_embedded_video = is_embedded_video;
+      image.active_status = active_status;
+      image.images = [...old_images, ...new_images];
+      image.images_mobile = [...old_images_mobile, ...new_images_mobile];
+      image.updated_at = current_date;
+      image.updated_by = req.me._id;
+      await image.save(options);
 
-			try {
-				const options = { session };
+      await session.commitTransaction();
+      session.endSession();
+      return response.ok(
+        true,
+        res,
+        i18n(`Success`, {}, req.headers["accept-language"], "general")
+      );
+    } catch (err) {
+      await session.abortTransaction();
+      session.endSession();
+      return response.error(400, err.message, res, err);
+    }
+  },
+  delete: async function (req, res) {
+    const { image_id } = req.body;
+    const current_date = moment().tz("Asia/Jakarta").format();
 
-				//pull address
-				await models.Content.updateMany({
-					deleted_time: {
-						$exists: false
-					}
-				}, {
-					$pull: {
-						banner: image._id,
-						thumbnail_images: image._id,
-						images: image._id,
-						'body.$[].images': image._id
-					}
-				});
+    const images = await models.Image.find({
+      _id: { $in: image_id },
+      organization_id: req.me.organization_id,
+      deleted_time: {
+        $exists: false,
+      },
+    });
 
-				image.deleted_time = current_date;
-				image.deleted_by = req.me._id;
-				image.updated_at = undefined;
-				image.updated_by = undefined;
-				await image.save(options);
+    for (let i = 0; i < images.length; i++) {
+      const image = images[i];
 
-				await session.commitTransaction();
-				session.endSession();
-			} catch (err) {
-				await session.abortTransaction();
-				session.endSession();
-				return response.error(400, err.message, res, err);
-			}
-		}
+      const session = await models.Image.startSession();
+      session.startTransaction();
 
-		return response.ok(true, res, i18n(`Success`, {}, req.headers['accept-language'], 'general'));
-	},
-}
+      try {
+        const options = { session };
+
+        //pull address
+        await models.Content.updateMany(
+          {
+            deleted_time: {
+              $exists: false,
+            },
+          },
+          {
+            $pull: {
+              banner: image._id,
+              thumbnail_images: image._id,
+              images: image._id,
+              "body.$[].images": image._id,
+            },
+          }
+        );
+
+        image.deleted_time = current_date;
+        image.deleted_by = req.me._id;
+        image.updated_at = undefined;
+        image.updated_by = undefined;
+        await image.save(options);
+
+        await session.commitTransaction();
+        session.endSession();
+      } catch (err) {
+        await session.abortTransaction();
+        session.endSession();
+        return response.error(400, err.message, res, err);
+      }
+    }
+
+    return response.ok(
+      true,
+      res,
+      i18n(`Success`, {}, req.headers["accept-language"], "general")
+    );
+  },
+};
 
 module.exports = Controller;
-

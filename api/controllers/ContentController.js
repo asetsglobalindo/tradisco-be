@@ -1,4 +1,5 @@
 const { convertData } = require("../helper/convert");
+const { addBaseUrlToImage } = require("../helper/imageUrlHelper");
 const response = require("../helper/response");
 const {
   generateSlugV3,
@@ -13,7 +14,6 @@ const CONTROLLER = {
   id: "Konten",
   en: "Content",
 };
-
 const POPUlATE_IMAGES = [
   {
     path: `images.id`,
@@ -203,6 +203,8 @@ const Controller = {
         contents[i] = convertData(contents[i], req.headers);
     }
 
+    contents = addBaseUrlToImage(contents);
+
     return response.ok(contents, res, `Success`, pages);
   },
   getDetail: async function (req, res) {
@@ -225,6 +227,9 @@ const Controller = {
         req?.me?.organization_id ?? req.headers?.organizationid;
 
     const content = await models.Content.findOne(filter).populate(POPULATE);
+
+    content = addBaseUrlToImage(content);
+
     return response.ok(
       content,
       res,
@@ -615,6 +620,9 @@ const Controller = {
     }).populate(populate);
     content = JSON.parse(JSON.stringify(content));
     content = convertData(content, req.headers);
+
+    content = addBaseUrlToImage(content);
+
     return response.ok(
       content,
       res,
