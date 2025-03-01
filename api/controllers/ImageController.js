@@ -3,7 +3,6 @@ const {
   remove_all_image,
   create_image,
 } = require("../helper/fileHelper");
-const { addBaseUrlToImage } = require("../helper/imageUrlHelper");
 const response = require("../helper/response");
 const { i18n } = require("../locales");
 const models = require("../models");
@@ -43,8 +42,6 @@ const Controller = {
     let images = await models.Image.find(filter, null, sort);
     images = JSON.parse(JSON.stringify(images));
 
-    images = addBaseUrlToImage(images);
-
     const total_data = await models.Image.countDocuments(filter);
     const pages = {
       current_page: +page,
@@ -75,8 +72,6 @@ const Controller = {
         req?.me?.organization_id ?? req.headers?.organizationid;
 
     let image = await models.Image.findOne(filter);
-
-    image = addBaseUrlToImage(image);
 
     return response.ok(
       image,
