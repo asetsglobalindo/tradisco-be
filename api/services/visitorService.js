@@ -131,9 +131,6 @@ async function trackVisitor(visitorId, clientIp) {
       });
     }
 
-    // Sanitize visitorId to replace periods with underscores
-    const sanitizedVisitorId = visitorId.replace(/\./g, "_");
-
     // Add visitorId to unique_visitors if not already present
     if (!monthData.unique_visitors.includes(sanitizedVisitorId)) {
       monthData.unique_visitors.push(sanitizedVisitorId);
@@ -144,7 +141,8 @@ async function trackVisitor(visitorId, clientIp) {
     monthData.visitor_sessions.set(sanitizedVisitorId, new Date().getTime());
 
     // Update visits by IP
-    const currentIpVisits = monthData.visitors_by_ip.get(sanitizedClientIp) || 0;
+    const currentIpVisits =
+      monthData.visitors_by_ip.get(sanitizedClientIp) || 0;
     monthData.visitors_by_ip.set(sanitizedClientIp, currentIpVisits + 1);
 
     // Save updated data
