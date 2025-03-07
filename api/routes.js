@@ -40,4 +40,7 @@ module.exports = function (app) {
 
     let Footer = require('../api/routes/Footer');
     app.use('/footer', Footer);
+
+    let Visitor = require('../api/routes/Visitor');
+    app.use('/visitor', Visitor);
 }

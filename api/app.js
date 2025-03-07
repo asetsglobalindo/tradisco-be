@@ -1,4 +1,6 @@
+const cookieParser = require("cookie-parser");
 const { BASE_STORAGE_DIR } = require("./helper/fileHelper");
+const trackVisitor = require("./middlewares/visitorTracking");
 /*** App Init ***/
 const express = require("express"),
   bodyParser = require("body-parser"),
@@ -21,9 +23,11 @@ app.use(express.static(path.join(__dirname, "../..")));
 app.use(morgan("combined"));
 app.use(fileUpload());
 
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(trackVisitor);
 
 /*** Database Connection ***/
 try {

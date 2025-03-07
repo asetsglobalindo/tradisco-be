@@ -201,7 +201,6 @@ const Controller = {
       for (let i = 0; i < contents.length; i++)
         contents[i] = convertData(contents[i], req.headers);
     }
-
     return response.ok(contents, res, `Success`, pages);
   },
   getDetail: async function (req, res) {

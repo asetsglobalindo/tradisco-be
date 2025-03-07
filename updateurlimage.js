@@ -22,15 +22,15 @@ async function updateImageUrls() {
       $or: [
         {
           "images.url": {
-            $regex: "http://localhost:7052/"
-          }
+            $regex: "http://103.146.202.109:7052/static/",
+          },
         },
         {
           "images_mobile.url": {
-            $regex: "http://localhost:7052/"
-          }
-        }
-      ]
+            $regex: "http://103.146.202.109:7052/static/",
+          },
+        },
+      ],
     });
 
     let updatedCount = 0;
@@ -47,12 +47,14 @@ async function updateImageUrls() {
         for (let i = 0; i < doc.images.length; i++) {
           if (
             doc.images[i].url &&
-            doc.images[i].url.includes("http://localhost:7052/")
+            doc.images[i].url.includes(
+              "http://103.146.202.109:7052/static/"
+            )
           ) {
             // Replace localhost with the IP address
             doc.images[i].url = doc.images[i].url.replace(
-              "http://localhost:7052/",
-              "http://103.146.202.109:7052/"
+              "http://103.146.202.109:7052/static/",
+              "https://api-pertare.tradisco.co.id/static/"
             );
             needsUpdate = true;
           }
@@ -64,12 +66,14 @@ async function updateImageUrls() {
         for (let i = 0; i < doc.images_mobile.length; i++) {
           if (
             doc.images_mobile[i].url &&
-            doc.images_mobile[i].url.includes("http://localhost:7052/")
+            doc.images_mobile[i].url.includes(
+              "http://103.146.202.109:7052/static/"
+            )
           ) {
             // Replace localhost with the IP address
             doc.images_mobile[i].url = doc.images_mobile[i].url.replace(
-              "http://localhost:7052/",
-              "http://103.146.202.109:7052/"
+              "http://103.146.202.109:7052/static/",
+              "https://api-pertare.tradisco.co.id/static/"
             );
             needsUpdate = true;
           }

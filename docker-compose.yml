@@ -1,0 +1,25 @@
+version: "3"
+services:
+  web:
+    build:
+      context: .
+      args:
+        NODE_ENV: ${NODE_ENV} # Ambil dari environment variabel untuk memilih mode (dev/prod)
+    ports:
+      - "7052:7052"
+    volumes:
+      - ./storage:/usr/src/app/storage # Volume untuk folder storage
+    environment:
+      - NODE_ENV=${NODE_ENV}
+    # Konfigurasi untuk development: gunakan nodemon
+    command: sh -c "if [ \"$NODE_ENV\" = \"development\" ]; then npm run dev; else node index.js; fi"
+    # Untuk development, Anda bisa menambahkan volume tambahan untuk hot-reloading:
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /usr/src/app
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: package.json
