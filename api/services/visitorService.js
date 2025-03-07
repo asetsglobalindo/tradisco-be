@@ -127,14 +127,17 @@ async function trackVisitor(visitorId, clientIp) {
       });
     }
 
+    // Sanitize visitorId to replace periods with underscores
+    const sanitizedVisitorId = visitorId.replace(/\./g, "_");
+
     // Add visitorId to unique_visitors if not already present
-    if (!monthData.unique_visitors.includes(visitorId)) {
-      monthData.unique_visitors.push(visitorId);
+    if (!monthData.unique_visitors.includes(sanitizedVisitorId)) {
+      monthData.unique_visitors.push(sanitizedVisitorId);
       monthData.total_visitors++;
     }
 
     // Update session timestamp
-    monthData.visitor_sessions.set(visitorId, new Date().getTime());
+    monthData.visitor_sessions.set(sanitizedVisitorId, new Date().getTime());
 
     // Update visits by IP
     const currentIpVisits = monthData.visitors_by_ip.get(clientIp) || 0;
