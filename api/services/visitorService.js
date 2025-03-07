@@ -131,6 +131,9 @@ async function trackVisitor(visitorId, clientIp) {
       });
     }
 
+    // Sanitize visitorId to replace periods with underscores
+    const sanitizedVisitorId = visitorId.replace(/\./g, "_");
+
     // Add visitorId to unique_visitors if not already present
     if (!monthData.unique_visitors.includes(sanitizedVisitorId)) {
       monthData.unique_visitors.push(sanitizedVisitorId);
