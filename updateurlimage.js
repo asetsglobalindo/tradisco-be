@@ -1,34 +1,35 @@
 const { MongoClient } = require("mongodb");
 
-// Connection URI
-const uri = "mongodb+srv://edu:edu@edu.atqvfub.mongodb.net/pertamina";
+// Koneksi URI dan informasi lainnya
+const config = {
+  uri: "mongodb+srv://edu:edu@edu.atqvfub.mongodb.net/restore",
+  dbName: "restore",
+  collectionName: "image",
+  oldBaseUrl: "https://api-pertare.tradisco.co.id/static/",
+  newBaseUrl: "http://localhost:7052/static/",
+};
 
-// Function to update image URLs
+// Fungsi untuk memperbarui URL gambar
 async function updateImageUrls() {
-  // Create a new MongoClient
-  const client = new MongoClient(uri);
+  const client = new MongoClient(config.uri);
 
   try {
-    // Connect to the MongoDB cluster
+    // Menghubungkan ke MongoDB
     await client.connect();
     console.log("Connected to MongoDB");
 
-    // Get the database and collection
-    const database = client.db("pertamina");
-    const collection = database.collection("image");
+    // Mengakses database dan koleksi
+    const database = client.db(config.dbName);
+    const collection = database.collection(config.collectionName);
 
-    // Find all documents with images or images_mobile that have localhost in the URL
+    // Mencari dokumen yang memiliki URL gambar yang perlu diperbarui
     const cursor = collection.find({
       $or: [
         {
-          "images.url": {
-            $regex: "http://103.146.202.109:7052/static/",
-          },
+          "images.url": { $regex: config.oldBaseUrl },
         },
         {
-          "images_mobile.url": {
-            $regex: "http://103.146.202.109:7052/static/",
-          },
+          "images_mobile.url": { $regex: config.oldBaseUrl },
         },
       ],
     });
@@ -42,45 +43,41 @@ async function updateImageUrls() {
     for (const doc of documents) {
       let needsUpdate = false;
 
-      // Process images array if it exists
+      // Memproses array images jika ada
       if (doc.images && doc.images.length > 0) {
         for (let i = 0; i < doc.images.length; i++) {
           if (
             doc.images[i].url &&
-            doc.images[i].url.includes(
-              "http://103.146.202.109:7052/static/"
-            )
+            doc.images[i].url.includes(config.oldBaseUrl)
           ) {
-            // Replace localhost with the IP address
+            // Ganti URL lama dengan yang baru
             doc.images[i].url = doc.images[i].url.replace(
-              "http://103.146.202.109:7052/static/",
-              "https://api-pertare.tradisco.co.id/static/"
+              config.oldBaseUrl,
+              config.newBaseUrl
             );
             needsUpdate = true;
           }
         }
       }
 
-      // Process images_mobile array if it exists
+      // Memproses array images_mobile jika ada
       if (doc.images_mobile && doc.images_mobile.length > 0) {
         for (let i = 0; i < doc.images_mobile.length; i++) {
           if (
             doc.images_mobile[i].url &&
-            doc.images_mobile[i].url.includes(
-              "http://103.146.202.109:7052/static/"
-            )
+            doc.images_mobile[i].url.includes(config.oldBaseUrl)
           ) {
-            // Replace localhost with the IP address
+            // Ganti URL lama dengan yang baru
             doc.images_mobile[i].url = doc.images_mobile[i].url.replace(
-              "http://103.146.202.109:7052/static/",
-              "https://api-pertare.tradisco.co.id/static/"
+              config.oldBaseUrl,
+              config.newBaseUrl
             );
             needsUpdate = true;
           }
         }
       }
 
-      // Update the document if changes were made
+      // Update dokumen jika ada perubahan
       if (needsUpdate) {
         const result = await collection.updateOne(
           { _id: doc._id },
@@ -103,11 +100,11 @@ async function updateImageUrls() {
   } catch (err) {
     console.error("Error occurred:", err);
   } finally {
-    // Close the connection to the MongoDB cluster
+    // Menutup koneksi MongoDB
     await client.close();
     console.log("MongoDB connection closed");
   }
 }
 
-// Run the function
+// Menjalankan fungsi
 updateImageUrls().catch(console.error);

@@ -37,6 +37,16 @@ const HOME_POPULATE = (language) => {
   return POPUlATE;
 };
 
+// Helper function to sort nested content by order field
+const sortByOrder = (items) => {
+  if (!items || !Array.isArray(items)) return items;
+  return [...items].sort((a, b) => {
+    const orderA = a.order !== undefined ? a.order : 0;
+    const orderB = b.order !== undefined ? b.order : 0;
+    return orderA - orderB;
+  });
+};
+
 const Home = {
   health: async function (_, res) {
     res.status(200).json(`Healthy`);
@@ -80,7 +90,6 @@ const Home = {
       res,
       i18n(`Success`, {}, default_lang(req.headers), "general")
     );
-    4;
   },
 
   content: async function (req, res) {
@@ -88,15 +97,46 @@ const Home = {
     let language = default_lang(req.headers);
     // Extract first language code only (e.g., "en" from "en-us,en;q=0.9")
     language = language.split(",")[0].split("-")[0];
+
+    // Get home data with populated fields (no sorting at this stage)
     let home = await models.Home.findOne().populate(HOME_POPULATE(language));
+
+    // Convert to plain object for manipulation
     home = JSON.parse(JSON.stringify(home));
+
+    // Apply sorting to all relevant nested arrays
+    if (home && home.section2 && home.section2.tab) {
+      // Sort tabs by order if they have order property
+      home.section2.tab = sortByOrder(home.section2.tab);
+
+      // Sort content inside each tab
+      home.section2.tab.forEach((tab) => {
+        if (tab.content) {
+          tab.content = sortByOrder(tab.content);
+        }
+      });
+    }
+
+    // Sort section4a content if it exists
+    if (home && home.section4a && home.section4a.content) {
+      home.section4a.content = sortByOrder(home.section4a.content);
+    }
+
+    // Sort section5 content if it exists
+    if (home && home.section5 && home.section5.content) {
+      home.section5.content = sortByOrder(home.section5.content);
+    }
+
+    // Convert data for localization
     home = convertData(home, req.headers);
+
     return response.ok(
       home,
       res,
       i18n(`Success`, {}, default_lang(req.headers), "general")
     );
   },
+
   get: async function (req, res) {
     const home = await models.Home.findOne();
     return response.ok(

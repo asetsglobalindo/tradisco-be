@@ -13,6 +13,17 @@ const CONTROLLER = {
   id: "Konten",
   en: "Content",
 };
+
+// Helper function to sort an array by the order field
+const sortByOrder = (items) => {
+  if (!items || !Array.isArray(items)) return items;
+  return [...items].sort((a, b) => {
+    const orderA = a.order !== undefined ? Number(a.order) : 0;
+    const orderB = b.order !== undefined ? Number(b.order) : 0;
+    return orderA - orderB;
+  });
+};
+
 const POPUlATE_IMAGES = [
   {
     path: `images.id`,
@@ -612,7 +623,51 @@ const Controller = {
       ...filter,
       active_status: true,
     }).populate(populate);
+
+    if (!content) {
+      return response.error(
+        404,
+        i18n(
+          `NotFound {{name}}`,
+          { name: CONTROLLER[default_lang(req.headers)] },
+          default_lang(req.headers),
+          "general"
+        ),
+        res
+      );
+    }
+
+    // Convert to plain object for manipulation
     content = JSON.parse(JSON.stringify(content));
+
+    // Apply sorting to nested arrays
+    if (content.body && Array.isArray(content.body)) {
+      content.body = sortByOrder(content.body);
+    }
+
+    if (content.body2 && Array.isArray(content.body2)) {
+      content.body2 = sortByOrder(content.body2);
+    }
+
+    if (content.related && Array.isArray(content.related)) {
+      content.related = sortByOrder(content.related);
+    }
+
+    if (content.related2 && Array.isArray(content.related2)) {
+      content.related2 = sortByOrder(content.related2);
+    }
+
+    // Images arrays typically don't have an order field, but we'll add sorting just in case
+    // If your image arrays do have order fields, this will sort them
+    if (content.images && Array.isArray(content.images)) {
+      content.images = sortByOrder(content.images);
+    }
+
+    if (content.images2 && Array.isArray(content.images2)) {
+      content.images2 = sortByOrder(content.images2);
+    }
+
+    // Convert data for localization
     content = convertData(content, req.headers);
 
     return response.ok(
