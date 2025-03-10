@@ -214,6 +214,93 @@ const Controller = {
     }
     return response.ok(contents, res, `Success`, pages);
   },
+
+  getBanner: async function (req, res) {
+    const { type } = req.query;
+
+    if (!type) {
+      return response.error(
+        400,
+        i18n(
+          `Required Parameter type`,
+          {},
+          req.headers["accept-language"],
+          "general"
+        ),
+        res
+      );
+    }
+
+    let filter = {
+      deleted_time: {
+        $exists: false,
+      },
+      type: models.Content.CONTENT_TYPE()[type],
+      active_status: true,
+    };
+
+    if (req?.me?.organization_id || req.headers?.organizationid) {
+      filter.organization_id =
+        req?.me?.organization_id ?? req.headers?.organizationid;
+    }
+
+    // Only select the necessary fields
+    const selectFields = "banner page_title";
+
+    // Populate only banner data for both languages
+    const populate = [
+      {
+        path: `banner.id`,
+        select: `images.url images_mobile.url title description button_name button_route`,
+        match: { deleted_time: { $exists: false } },
+      },
+      {
+        path: `banner.en`,
+        select: `images.url images_mobile.url title description button_name button_route`,
+        match: { deleted_time: { $exists: false } },
+      },
+    ];
+
+    try {
+      const content = await models.Content.findOne(
+        filter,
+        selectFields
+      ).populate(populate);
+
+      if (!content) {
+        return response.error(
+          404,
+          i18n(
+            `NotFound {{name}}`,
+            { name: CONTROLLER[default_lang(req.headers)] },
+            default_lang(req.headers),
+            "general"
+          ),
+          res
+        );
+      }
+
+      // Structure the response to include both language versions
+      const result = {
+        id: {
+          banner: content.banner || null,
+          page_title: content.page_title?.id || null,
+        },
+        en: {
+          banner: content.banner || null,
+          page_title: content.page_title?.en || null,
+        },
+      };
+
+      return response.ok(
+        result,
+        res,
+        i18n(`Success`, {}, req.headers["accept-language"], "general")
+      );
+    } catch (err) {
+      return response.error(400, err.message, res, err);
+    }
+  },
   getDetail: async function (req, res) {
     const { content_id } = req.params;
 
