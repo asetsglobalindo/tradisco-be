@@ -47,6 +47,16 @@ const sortByOrder = (items) => {
   });
 };
 
+// Helper function to sort diagram data by year
+const sortByYear = (items) => {
+  if (!items || !Array.isArray(items)) return items;
+  return [...items].sort((a, b) => {
+    const yearA = a.tahun !== undefined ? a.tahun : 0;
+    const yearB = b.tahun !== undefined ? b.tahun : 0;
+    return yearA - yearB;
+  });
+};
+
 const Home = {
   health: async function (_, res) {
     res.status(200).json(`Healthy`);
@@ -92,6 +102,134 @@ const Home = {
     );
   },
 
+  // Add or update diagram data for section4
+  updateDiagram: async function (req, res) {
+    const { section4Id, diagramType, diagramData } = req.body;
+
+    if (
+      !section4Id ||
+      !diagramType ||
+      !diagramData ||
+      !Array.isArray(diagramData)
+    ) {
+      return response.badRequest(
+        res,
+        i18n(`Invalid request data`, {}, default_lang(req.headers), "general")
+      );
+    }
+
+    // Validate diagramType
+    if (diagramType !== "diagram1" && diagramType !== "diagram2") {
+      return response.badRequest(
+        res,
+        i18n(`Invalid diagram type`, {}, default_lang(req.headers), "general")
+      );
+    }
+
+    try {
+      const home = await models.Home.findOne({});
+      if (!home) {
+        return response.notFound(
+          res,
+          i18n(`Home page not found`, {}, default_lang(req.headers), "general")
+        );
+      }
+
+      // Find the specific section4 by ID
+      const section4Index = home.section4.findIndex(
+        (s) => s._id.toString() === section4Id
+      );
+      if (section4Index === -1) {
+        return response.notFound(
+          res,
+          i18n(`Section4 not found`, {}, default_lang(req.headers), "general")
+        );
+      }
+
+      // Update the appropriate diagram data
+      home.section4[section4Index][diagramType] = diagramData;
+
+      // Update metadata
+      home.updated_by = req.me._id;
+      home.updated_at = moment().tz("Asia/Jakarta").format();
+
+      await home.save();
+
+      return response.ok(
+        true,
+        res,
+        i18n(
+          `Diagram updated successfully`,
+          {},
+          default_lang(req.headers),
+          "general"
+        )
+      );
+    } catch (error) {
+      console.error("Error updating diagram:", error);
+      return response.serverError(
+        res,
+        i18n(`Server error`, {}, default_lang(req.headers), "general")
+      );
+    }
+  },
+
+  // Get diagram data for section4
+  getDiagram: async function (req, res) {
+    const { section4Id, diagramType } = req.query;
+
+    if (!section4Id || !diagramType) {
+      return response.badRequest(
+        res,
+        i18n(`Missing parameters`, {}, default_lang(req.headers), "general")
+      );
+    }
+
+    // Validate diagramType
+    if (diagramType !== "diagram1" && diagramType !== "diagram2") {
+      return response.badRequest(
+        res,
+        i18n(`Invalid diagram type`, {}, default_lang(req.headers), "general")
+      );
+    }
+
+    try {
+      const home = await models.Home.findOne({});
+      if (!home) {
+        return response.notFound(
+          res,
+          i18n(`Home page not found`, {}, default_lang(req.headers), "general")
+        );
+      }
+
+      // Find the specific section4 by ID
+      const section4 = home.section4.find(
+        (s) => s._id.toString() === section4Id
+      );
+      if (!section4) {
+        return response.notFound(
+          res,
+          i18n(`Section4 not found`, {}, default_lang(req.headers), "general")
+        );
+      }
+
+      // Get the appropriate diagram data and sort by year
+      const diagramData = sortByYear(section4[diagramType] || []);
+
+      return response.ok(
+        diagramData,
+        res,
+        i18n(`Success`, {}, default_lang(req.headers), "general")
+      );
+    } catch (error) {
+      console.error("Error getting diagram:", error);
+      return response.serverError(
+        res,
+        i18n(`Server error`, {}, default_lang(req.headers), "general")
+      );
+    }
+  },
+
   content: async function (req, res) {
     // Fix by sanitizing the language before using it
     let language = default_lang(req.headers);
@@ -125,6 +263,18 @@ const Home = {
     // Sort section5 content if it exists
     if (home && home.section5 && home.section5.content) {
       home.section5.content = sortByOrder(home.section5.content);
+    }
+
+    // Sort diagram data by year in section4 if it exists
+    if (home && home.section4 && Array.isArray(home.section4)) {
+      home.section4.forEach((section) => {
+        if (section.diagram1 && Array.isArray(section.diagram1)) {
+          section.diagram1 = sortByYear(section.diagram1);
+        }
+        if (section.diagram2 && Array.isArray(section.diagram2)) {
+          section.diagram2 = sortByYear(section.diagram2);
+        }
+      });
     }
 
     // Convert data for localization

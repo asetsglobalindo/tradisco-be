@@ -80,6 +80,8 @@ router.get("/", (req, res) => {
 router.get("/health", Controller.health);
 router.get("/home", middleware.authAdmin, Controller.get);
 router.get("/home/content", Controller.content);
+router.get("/home/diagram", middleware.authAdmin, Controller.getDiagram);
+router.post("/home/diagram", middleware.authAdmin, Controller.updateDiagram);
 router.post("/home", middleware.authAdmin, Controller.add);
 
 module.exports = router;
