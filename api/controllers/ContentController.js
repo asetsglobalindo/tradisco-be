@@ -200,6 +200,32 @@ const Controller = {
     let contents = await models.Content.find(filter, null, sort).populate(
       POPULATE
     );
+    // After retrieving contents
+    contents = contents.map((content) => {
+      // Sort the body array in reverse chronological order
+      if (content.body && content.body.length > 0) {
+        content.body.sort((a, b) => {
+          // Extract years from titles, handling the language object structure
+          // Assuming default_lang is the language key you're using (e.g., 'en', 'id')
+          const lang = default_lang(req.headers);
+
+          // Safely access the title in the correct language
+          const titleA = a.title && a.title[lang] ? a.title[lang] : "";
+          const titleB = b.title && b.title[lang] ? b.title[lang] : "";
+
+          // Extract years from the title strings
+          const yearA = titleA.match(/\d{4}/)
+            ? parseInt(titleA.match(/\d{4}/)[0])
+            : 0;
+          const yearB = titleB.match(/\d{4}/)
+            ? parseInt(titleB.match(/\d{4}/)[0])
+            : 0;
+
+          return yearB - yearA; // Descending order (newest first)
+        });
+      }
+      return content;
+    });
     const total_data = await models.Content.countDocuments(filter);
     const pages = {
       current_page: parseInt(page),
