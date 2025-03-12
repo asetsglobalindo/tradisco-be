@@ -14,7 +14,6 @@ const CONTROLLER = {
   en: "Content",
 };
 
-// Helper function to sort an array by the order field
 const sortByOrder = (items) => {
   if (!items || !Array.isArray(items)) return items;
   return [...items].sort((a, b) => {
@@ -244,10 +243,8 @@ const Controller = {
         req?.me?.organization_id ?? req.headers?.organizationid;
     }
 
-    // Only select the necessary fields
     const selectFields = "banner page_title";
 
-    // Populate only banner data for both languages
     const populate = [
       {
         path: `banner.id`,
@@ -280,7 +277,6 @@ const Controller = {
         );
       }
 
-      // Structure the response to include both language versions
       const result = {
         id: {
           banner: content.banner || null,
@@ -365,6 +361,7 @@ const Controller = {
       images2 = [],
       bottom_text2,
       bottom_description2,
+      jam_kerja,
     } = req.body;
 
     const slug = await generateSlugV3(title["id"], models.Content, `title`);
@@ -447,6 +444,7 @@ const Controller = {
         images2,
         bottom_text2,
         bottom_description2,
+        jam_kerja,
       };
       await models.Content(new_data).save(options);
 
@@ -501,6 +499,7 @@ const Controller = {
       images2 = [],
       bottom_text2,
       bottom_description2,
+      jam_kerja,
     } = req.body;
 
     let additional_filter = {
@@ -614,6 +613,7 @@ const Controller = {
       if (bottom_text2) content.bottom_text2 = bottom_text2;
       if (bottom_description2)
         content.bottom_description2 = bottom_description2;
+      if (jam_kerja) content.jam_kerja = jam_kerja;
       content.updated_at = current_date;
       content.updated_by = req.me._id;
       await content.save(options);
@@ -642,7 +642,6 @@ const Controller = {
     try {
       const options = { session };
 
-      //update content
       const filter = {
         _id: { $in: content_id },
         organization_id: req.me.organization_id,
@@ -724,10 +723,8 @@ const Controller = {
       );
     }
 
-    // Convert to plain object for manipulation
     content = JSON.parse(JSON.stringify(content));
 
-    // Apply sorting to nested arrays
     if (content.body && Array.isArray(content.body)) {
       content.body = sortByOrder(content.body);
     }
@@ -744,8 +741,6 @@ const Controller = {
       content.related2 = sortByOrder(content.related2);
     }
 
-    // Images arrays typically don't have an order field, but we'll add sorting just in case
-    // If your image arrays do have order fields, this will sort them
     if (content.images && Array.isArray(content.images)) {
       content.images = sortByOrder(content.images);
     }
@@ -754,7 +749,6 @@ const Controller = {
       content.images2 = sortByOrder(content.images2);
     }
 
-    // Convert data for localization
     content = convertData(content, req.headers);
 
     return response.ok(

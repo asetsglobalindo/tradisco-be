@@ -137,6 +137,7 @@ const contentSchema = new mongoose.Schema({
   thumbnail_images: [LanguageListType("image")],
   //for homepage
   thumbnail_images2: [LanguageListType("image")],
+  jam_kerja: { type: String },
   related: [
     {
       type: String,
