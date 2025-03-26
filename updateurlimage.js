@@ -5,8 +5,8 @@ const config = {
   uri: "mongodb+srv://edu:edu@edu.atqvfub.mongodb.net/restore",
   dbName: "restore",
   collectionName: "image",
-  oldBaseUrl: "https://api-pertare.tradisco.co.id/static/",
-  newBaseUrl: "http://localhost:7052/static/",
+  oldBaseUrl: "http://localhost:7052/static",
+  newBaseUrl: "http://localhost:7152/static/",
 };
 
 // Fungsi untuk memperbarui URL gambar

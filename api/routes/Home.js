@@ -63,13 +63,13 @@ router.get("/", (req, res) => {
       </head>
       <body>
           <div class="container">
-              <h1>Welcome to the API Pertare</h1>
-              <p>This is the main API endpoint for Pertare.</p>
+              <h1>Welcome to the API Tradisco</h1>
+              <p>This is the main API endpoint for Tradisco.</p>
               <p>Version: 1.0.0</p>
               <p>To access the available endpoints, refer to the documentation below:</p>
               <a href="https://documenter.getpostman.com/view/18941111/2sAYdkGocB" target="_blank" class="button">View Documentation</a>
-              <footer>
-                  <p>Contact support: <a href="mailto:support@pertare.com">support@pertare.com</a></p>
+                            <footer>
+                  <p>Contact support: <a href="mailto:support@tradisco.com">techproject.asets@gmail.com</a></p>
               </footer>
           </div>
       </body>
